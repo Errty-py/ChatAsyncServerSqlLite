@@ -32,12 +32,12 @@ Log.Logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    {
-        options.UseSqlite(
-            "Data Source=chat.db"
-        );
-    });
+builder.Services.AddDbContext<AppDbContext>(options => 
+{
+    options.UseSqlite(
+        builder.Configuration
+               .GetConnectionString("Default"));
+});
 
 builder.Services.AddSingleton<Server>(provider =>
     {

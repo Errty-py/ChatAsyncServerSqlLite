@@ -2,8 +2,8 @@
 using ChatAsyncServerSqlLite.Contracts.Packets;
 using ChatAsyncServerSqlLite.Core.Sessions;
 using ChatAsyncServerSqlLite.Services;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace ChatAsyncServerSqlLite.Handlers;
 
