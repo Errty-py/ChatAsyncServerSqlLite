@@ -1,0 +1,58 @@
+# Build
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# NuGet
+*.nupkg
+
+# Environment
+.env
+
+# Temporary
+tmp/
+temp/
+
+# Publish
+publish/
+
+# Test Results
+TestResults/
+
+# JetBrains
+_ReSharper*/
+*.DotSettings.user
+
+# Backup files
+*.bak
+*.tmp
+
+# Generated files
+Generated/
+
+# Coverage
+coverage/
+*.coverage
