@@ -66,7 +66,7 @@ public class Server
                     }
                     finally
                     {
-                        _sessionManager.Remove(session);
+                        _sessionManager.Remove(session.SessionId);
                         tcpClient.Close();
                         _logger.LogInformation("Client disconnected {ClientId}", session.ClientId);
                     }

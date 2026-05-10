@@ -25,9 +25,18 @@ public class MessageService
 
     public async Task SendAsync(MessageRequest request, ClientSession session)
     {
+        if (!session.IsAuthenticated || session.ClientId is null)
+        {
+            _logger.LogWarning(
+                "Unauthenticated session {SessionId} tried to send message",
+                session.SessionId);
+
+            return;
+        }
+        
         MessageEntity message = new MessageEntity()
         {
-            FromClientId = session.ClientId,
+            FromClientId = session.ClientId.Value,
             Text = request.Text,
             CreatedAt = DateTime.UtcNow
         };
@@ -36,7 +45,7 @@ public class MessageService
 
         MessageResponse response = new MessageResponse()
         {
-            FromClientId = session.ClientId,
+            FromClientId = message.FromClientId,
             SenderName = session.Name,
             Text = message.Text,
             CreatedAt = message.CreatedAt

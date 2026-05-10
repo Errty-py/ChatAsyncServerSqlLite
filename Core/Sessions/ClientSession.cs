@@ -4,8 +4,13 @@ namespace ChatAsyncServerSqlLite.Core.Sessions;
 
 public class ClientSession
 {
-    public int ClientId { get; set; }
-    public required TcpClient TcpClient { get; set; }
+    public Guid SessionId { get; init; } = Guid.NewGuid();
+
+    public int? ClientId { get; set; }
+
+    public required TcpClient TcpClient { get; init; }
+
     public string Name { get; set; } = string.Empty;
+
     public bool IsAuthenticated { get; set; }
 }
