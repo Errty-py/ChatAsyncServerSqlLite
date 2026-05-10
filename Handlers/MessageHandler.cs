@@ -27,8 +27,7 @@ public class MessageHandler
         _logger.LogInformation("Message packet received from client {ClientId}",
                                session.ClientId);
 
-        MessageRequest? request =
-            packet.Data.Deserialize<MessageRequest>();
+        MessageRequest? request = packet.Data.Deserialize<MessageRequest>();
 
         if (request == null)
         {

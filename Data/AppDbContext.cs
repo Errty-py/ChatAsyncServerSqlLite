@@ -1,21 +1,21 @@
-﻿using ChatAsyncServerSqlLite.Data.Entities;
+﻿using ChatAsyncServerSqlLite.Data.Configurations;
+using ChatAsyncServerSqlLite.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatAsyncServerSqlLite.Data
+namespace ChatAsyncServerSqlLite.Data;
+
+public class AppDbContext : DbContext
 {
-    public class AppDbContext : DbContext
+    public DbSet<ClientEntity> Clients { get; set; }
+    public DbSet<MessageEntity> Messages { get; set; }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+    : base(options)
     {
-        public DbSet<ClientEntity> Clients { get; set; }
-        public DbSet<MessageEntity> Messages { get; set; }
+    }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

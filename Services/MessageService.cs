@@ -25,7 +25,7 @@ public class MessageService
 
     public async Task SendAsync(MessageRequest request, ClientSession session)
     {
-        MessageEntity message = new()
+        MessageEntity message = new MessageEntity()
         {
             FromClientId = session.ClientId,
             Text = request.Text,
@@ -34,7 +34,7 @@ public class MessageService
 
         await _repository.AddAsync(message);
 
-        MessageResponse response = new()
+        MessageResponse response = new MessageResponse()
         {
             FromClientId = session.ClientId,
             SenderName = session.Name,
@@ -50,4 +50,3 @@ public class MessageService
         await _broadcaster.BroadcastAsync(data, session);
     }
 }
-

@@ -1,8 +1,7 @@
-﻿namespace ChatAsyncServerSqlLite.Contracts.Responses
+﻿namespace ChatAsyncServerSqlLite.Contracts.Responses;
+
+public class BaseResponse
 {
-    public class BaseResponse
-    {
-        public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
-    }
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
 }

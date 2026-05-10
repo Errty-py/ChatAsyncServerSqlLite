@@ -1,8 +1,7 @@
-﻿namespace ChatAsyncServerSqlLite.Contracts.Requests
+﻿namespace ChatAsyncServerSqlLite.Contracts.Requests;
+
+public class LoginRequest
 {
-    public class LoginRequest
-    {
-        public string Login { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
+    public string Login { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

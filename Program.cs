@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 
 using Serilog;
+using Microsoft.Extensions.Configuration;
 
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
@@ -30,11 +31,20 @@ Log.Logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
-builder.Services.AddDbContext<AppDbContext>(
-    options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     {
         options.UseSqlite(
-            "Data Source=chat.db"
+            builder.Configuration.GetConnectionString("DefaultConnection")
+        );
+    });
+
+builder.Services.AddSingleton<Server>(provider =>
+    {
+        return new Server(
+            new IPEndPoint(IPAddress.Any, 7000),
+            provider.GetRequiredService<SessionManager>(),
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            provider.GetRequiredService<ILogger<Server>>()
         );
     });
 
@@ -55,22 +65,19 @@ builder.Services.AddScoped<PacketRouter>();
 
 IHost host = builder.Build();
 
-IServiceScopeFactory scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
+Server server = host.Services.GetRequiredService<Server>();
 
-SessionManager sessionManager = host.Services.GetRequiredService<SessionManager>();
-ILogger<Server> logger = host.Services.GetRequiredService<ILogger<Server>>();
+try
+{
+    await server.StartAsync();
 
-IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 7000);
+    Console.WriteLine("Press ENTER to stop server");
 
-Server server = new Server(
-    iPEndPoint,
-    sessionManager,
-    scopeFactory,
-    logger
-);
+    Console.ReadLine();
+}
+finally
+{
+    await server.StopAsync();
 
-_ = server.StartAsync();
-
-Console.ReadLine();
-
-await server.StopAsync();
+    Log.CloseAndFlush();
+}
