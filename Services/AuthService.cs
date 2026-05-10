@@ -28,7 +28,7 @@ public class AuthService
             };
         }
 
-        ClientEntity client = new()
+        ClientEntity client = new ClientEntity()
         {
             Name = request.Name,
             Login = request.Login,
