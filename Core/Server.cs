@@ -16,6 +16,7 @@ public class Server
     private readonly ILogger<Server> _logger;
     private readonly SessionManager _sessionManager;
     private readonly TcpListener _listener;
+    private bool _isRunning;
 
     public Server(IPEndPoint iPEndPoint,
                   SessionManager sessionManager,
@@ -32,12 +33,16 @@ public class Server
 
     public async Task StartAsync()
     {
+        _isRunning = true;
+
         _listener.Start();
+        
         _logger.LogInformation("Server started on port {Port}", _iPEndPoint.Port);
 
-        while (true)
+        
+        try
         {
-            try
+            while(_isRunning)
             {
                 TcpClient tcpClient = await _listener.AcceptTcpClientAsync();
 
@@ -72,15 +77,17 @@ public class Server
                     }
                 });
             }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Accept client failed");
-            }
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Server ERROR");
         }
     }
 
     public async Task StopAsync()
     {
+        _isRunning = false;
+
         _listener.Stop();
 
         foreach (ClientSession session in _sessionManager.GetAll())

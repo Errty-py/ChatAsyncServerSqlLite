@@ -35,7 +35,7 @@ builder.Logging.AddSerilog();
 builder.Services.AddDbContext<AppDbContext>(options =>
     {
         options.UseSqlite(
-            builder.Configuration.GetConnectionString("DefaultConnection")
+            "Data Source=chat.db"
         );
     });
 
@@ -68,17 +68,12 @@ IHost host = builder.Build();
 
 Server server = host.Services.GetRequiredService<Server>();
 
-try
-{
-    await server.StartAsync();
+Task serverTask = server.StartAsync();
 
-    Console.WriteLine("Press ENTER to stop server");
+Console.ReadLine();
 
-    Console.ReadLine();
-}
-finally
-{
-    await server.StopAsync();
+await server.StopAsync();
 
-    Log.CloseAndFlush();
-}
+await serverTask;
+
+Log.CloseAndFlush();
