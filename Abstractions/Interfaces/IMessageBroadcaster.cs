@@ -1,4 +1,4 @@
-using ChatAsyncServerSqlLite.Contracts;
+using ChatAsyncServerSqlLite.Core.Sessions;
 
 namespace ChatAsyncServerSqlLite.Abstractions.Interfaces;
 

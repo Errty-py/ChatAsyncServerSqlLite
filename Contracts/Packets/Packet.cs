@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace ChatAsyncServerSqlLite.Contracts;
+namespace ChatAsyncServerSqlLite.Contracts.Packets;
 
 public class Packet
 {

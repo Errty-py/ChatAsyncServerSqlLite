@@ -1,4 +1,4 @@
-﻿namespace ChatAsyncServerSqlLite.Contracts;
+﻿namespace ChatAsyncServerSqlLite.Contracts.Packets;
 
 public static class PacketType
 {

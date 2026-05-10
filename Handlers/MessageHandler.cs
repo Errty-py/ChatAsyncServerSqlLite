@@ -1,6 +1,6 @@
 ﻿using ChatAsyncServerSqlLite.Contracts.Requests;
-using ChatAsyncServerSqlLite.Contracts.Responses;
-using ChatAsyncServerSqlLite.Contracts;
+using ChatAsyncServerSqlLite.Contracts.Packets;
+using ChatAsyncServerSqlLite.Core.Sessions;
 using ChatAsyncServerSqlLite.Services;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;

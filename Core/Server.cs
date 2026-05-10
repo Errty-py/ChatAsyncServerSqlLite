@@ -1,13 +1,14 @@
 ﻿using ChatAsyncServerSqlLite.Core.Networking;
 using ChatAsyncServerSqlLite.Handlers;
 using ChatAsyncServerSqlLite.Routing;
-using ChatAsyncServerSqlLite.Contracts;
+using ChatAsyncServerSqlLite.Core.Sessions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Net;
 
 namespace ChatAsyncServerSqlLite.Core;
+
 public class Server
 {
     private readonly IPEndPoint _iPEndPoint;
@@ -17,9 +18,9 @@ public class Server
     private readonly TcpListener _listener;
 
     public Server(IPEndPoint iPEndPoint,
-                    SessionManager sessionManager,
-                    IServiceScopeFactory scopeFactory,
-                    ILogger<Server> logger)
+                  SessionManager sessionManager,
+                  IServiceScopeFactory scopeFactory,
+                  ILogger<Server> logger)
     {
         this._iPEndPoint = iPEndPoint;
         this._listener = new TcpListener(_iPEndPoint);

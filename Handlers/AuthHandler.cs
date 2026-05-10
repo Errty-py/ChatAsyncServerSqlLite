@@ -1,8 +1,9 @@
 ﻿using ChatAsyncServerSqlLite.Protocols;
-using ChatAsyncServerSqlLite.Contracts;
+using ChatAsyncServerSqlLite.Contracts.Packets;
 using ChatAsyncServerSqlLite.Contracts.Requests;
 using ChatAsyncServerSqlLite.Services;
 using ChatAsyncServerSqlLite.Core.Networking;
+using ChatAsyncServerSqlLite.Core.Sessions;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.Json;
@@ -15,8 +16,8 @@ public class AuthHandler
     private readonly ILogger<AuthHandler> _logger;
 
     public AuthHandler(AuthService authService,
-                        NetworkHelper networkHelper,
-                        ILogger<AuthHandler> logger)
+                       NetworkHelper networkHelper,
+                       ILogger<AuthHandler> logger)
     {
         this._authService = authService;
         this._networkHelper = networkHelper;

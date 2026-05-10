@@ -1,4 +1,4 @@
-﻿using ChatAsyncServerSqlLite.Contracts;
+﻿using ChatAsyncServerSqlLite.Core.Sessions;
 using Microsoft.Extensions.Logging;
 
 namespace ChatAsyncServerSqlLite.Core;

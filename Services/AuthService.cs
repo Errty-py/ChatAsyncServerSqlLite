@@ -2,7 +2,7 @@
 using ChatAsyncServerSqlLite.Contracts.Requests;
 using ChatAsyncServerSqlLite.Contracts.Responses;
 using ChatAsyncServerSqlLite.Data.Entities;
-using ChatAsyncServerSqlLite.Security;
+using ChatAsyncServerSqlLite.Core.Security;
 
 namespace ChatAsyncServerSqlLite.Services;
 

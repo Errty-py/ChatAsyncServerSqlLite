@@ -1,7 +1,8 @@
 ﻿using ChatAsyncServerSqlLite.Protocols;
 using ChatAsyncServerSqlLite.Core.Networking;
 using ChatAsyncServerSqlLite.Routing;
-using ChatAsyncServerSqlLite.Contracts;
+using ChatAsyncServerSqlLite.Core.Sessions;
+using ChatAsyncServerSqlLite.Contracts.Packets;
 using System.Net.Sockets;
 
 namespace ChatAsyncServerSqlLite.Handlers;
@@ -13,8 +14,8 @@ public class ClientHandler
     private readonly ClientSession _session;
 
     public ClientHandler(ClientSession session,
-                            PacketRouter router,
-                            NetworkHelper networkHelper)
+                         PacketRouter router,
+                         NetworkHelper networkHelper)
     {
         this._session = session;
         this._router = router;

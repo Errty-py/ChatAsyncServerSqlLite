@@ -1,7 +1,7 @@
 ﻿using ChatAsyncServerSqlLite.Abstractions.Interfaces;
 using ChatAsyncServerSqlLite.Contracts.Requests;
 using ChatAsyncServerSqlLite.Contracts.Responses;
-using ChatAsyncServerSqlLite.Contracts;
+using ChatAsyncServerSqlLite.Core.Sessions;
 using ChatAsyncServerSqlLite.Data.Entities;
 using ChatAsyncServerSqlLite.Protocols;
 using Microsoft.Extensions.Logging;

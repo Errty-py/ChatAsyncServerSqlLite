@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace ChatAsyncServerSqlLite.Contracts;
+namespace ChatAsyncServerSqlLite.Core.Sessions;
 
 public class ClientSession
 {
