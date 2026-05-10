@@ -78,9 +78,18 @@ public class Server
                 });
             }
         }
-        catch(Exception ex)
+        catch (SocketException)
         {
-            _logger.LogError(ex, "Server ERROR");
+            if (_isRunning)
+            {
+                _logger.LogError("Unexpected socket error");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Server ERROR");
         }
     }
 
