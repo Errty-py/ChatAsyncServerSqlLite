@@ -1,10 +1,11 @@
-﻿using ChatAsyncServerSqlLite.Handlers;
+﻿using ChatAsyncServerSqlLite.Core.Networking;
+using ChatAsyncServerSqlLite.Handlers;
 using ChatAsyncServerSqlLite.Routing;
 using ChatAsyncServerSqlLite.Contracts;
-using System.Net;
-using System.Net.Sockets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net.Sockets;
+using System.Net;
 
 namespace ChatAsyncServerSqlLite.Core;
 public class Server
@@ -35,38 +36,45 @@ public class Server
 
         while (true)
         {
-            TcpClient tcpClient = await _listener.AcceptTcpClientAsync();
-
-            ClientSession session = new ClientSession()
+            try
             {
-                TcpClient = tcpClient
-            };
+                TcpClient tcpClient = await _listener.AcceptTcpClientAsync();
 
-            _sessionManager.Add(session);
-            
-            _logger.LogInformation("Client connected from {Endpoint}",
-                                    tcpClient.Client.RemoteEndPoint);
+                ClientSession session = new ClientSession()
+                {
+                    TcpClient = tcpClient
+                };
 
-            _ = Task.Run(async () =>
+                _sessionManager.Add(session);
+                
+                _logger.LogInformation("Client connected from {Endpoint}",
+                                        tcpClient.Client.RemoteEndPoint);
+
+                _ = Task.Run(async () =>
+                {
+                    using IServiceScope scope = _scopeFactory.CreateScope();
+
+                    var router = scope.ServiceProvider.GetRequiredService<PacketRouter>();
+                    var networkHelper = scope.ServiceProvider.GetRequiredService<NetworkHelper>();
+
+                    var handler = new ClientHandler(session, router, networkHelper);
+
+                    try
+                    {
+                        await handler.HandleAsync();
+                    }
+                    finally
+                    {
+                        _sessionManager.Remove(session);
+                        tcpClient.Close();
+                        _logger.LogInformation("Client disconnected {ClientId}", session.ClientId);
+                    }
+                });
+            }
+            catch(Exception ex)
             {
-                using IServiceScope scope = _scopeFactory.CreateScope();
-
-                var router = scope.ServiceProvider.GetRequiredService<PacketRouter>();
-                var networkHelper = scope.ServiceProvider.GetRequiredService<NetworkHelper>();
-
-                var handler = new ClientHandler(session, router, networkHelper);
-
-                try
-                {
-                    await handler.HandleAsync();
-                }
-                finally
-                {
-                    _sessionManager.Remove(session);
-                    tcpClient.Close();
-                    _logger.LogInformation("Client disconnected {ClientId}", session.ClientId);
-                }
-            });
+                _logger.LogError(ex, "Accept client failed");
+            }
         }
     }
 

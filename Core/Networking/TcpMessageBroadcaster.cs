@@ -1,37 +1,70 @@
 using ChatAsyncServerSqlLite.Abstractions.Interfaces;
 using ChatAsyncServerSqlLite.Contracts;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 
 namespace ChatAsyncServerSqlLite.Core.Networking;
 
-public class MessageBroadcaster : IMessageBroadcaster
+public class TcpMessageBroadcaster : IMessageBroadcaster
 {
     private readonly SessionManager _sessionManager;
+    private readonly NetworkHelper _networkHelper;
+    private readonly ILogger<TcpMessageBroadcaster> _logger;
 
-    public MessageBroadcaster(SessionManager sessionManager)
+    public TcpMessageBroadcaster(SessionManager sessionManager,
+                                 NetworkHelper networkHelper,
+                                 ILogger<TcpMessageBroadcaster> logger)
     {
-        _sessionManager = sessionManager;
+        this._sessionManager = sessionManager;
+        this._networkHelper = networkHelper;
+        this._logger = logger;
     }
 
     public async Task BroadcastAsync(byte[] data, ClientSession sender)
     {
-        foreach (var session in _sessionManager.GetAll())
+        var sessions = _sessionManager.GetAll();
+
+        int sentCount = 0;
+        int skippedCount = 0;
+        int errorCount = 0;
+
+        _logger.LogInformation(
+            "Broadcast started from client {ClientId}. Target sessions: {Count}",
+            sender.ClientId,
+            sessions.Count);
+
+        foreach (var session in sessions)
         {
-            if (!session.IsAuthenticated || session.ClientId == sender.ClientId)
+            if (!session.IsAuthenticated || 
+                session.ClientId == sender.ClientId)
+            {
+                skippedCount++;
                 continue;
+            }
 
             try
             {
-                await session.TcpClient.GetStream().WriteAsync(data);
+                var stream = session.TcpClient.GetStream();
+                
+                await _networkHelper.SendAsync(data, stream);
+
+                sentCount++;
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.LogError
-                (
-                    ex, 
-                    "Error while sending message to client {ClientId}",
-                    session.ClientId
-                );
+                errorCount++;
+
+                _logger.LogError(
+                    ex,
+                    "Failed to send message to client {ClientId}",
+                    session.ClientId);
             }
         }
+
+        _logger.LogInformation(
+            "Broadcast finished. Sent: {Sent}, Skipped: {Skipped}, Errors: {Errors}",
+            sentCount,
+            skippedCount,
+            errorCount);
     }
 }

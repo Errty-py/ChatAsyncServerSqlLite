@@ -4,6 +4,7 @@ using ChatAsyncServerSqlLite.Contracts.Responses;
 using ChatAsyncServerSqlLite.Contracts;
 using ChatAsyncServerSqlLite.Data.Entities;
 using ChatAsyncServerSqlLite.Protocols;
+using Microsoft.Extensions.Logging;
 
 namespace ChatAsyncServerSqlLite.Services;
 
@@ -11,11 +12,15 @@ public class MessageService
 {
     private readonly IMessageRepository _repository;
     private readonly IMessageBroadcaster _broadcaster;
-
-    public MessageService(IMessageRepository repository, IMessageBroadcaster broadcaster)
+    private readonly ILogger<MessageService> _logger;
+    
+    public MessageService(IMessageRepository repository, 
+                          IMessageBroadcaster broadcaster,
+                          ILogger<MessageService> logger)
     {
-        _repository = repository;
-        _broadcaster = broadcaster;
+        this._repository = repository;
+        this._broadcaster = broadcaster;
+        this._logger = logger;
     }
 
     public async Task SendAsync(MessageRequest request, ClientSession session)

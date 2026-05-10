@@ -3,16 +3,20 @@ using ChatAsyncServerSqlLite.Contracts.Responses;
 using ChatAsyncServerSqlLite.Contracts;
 using ChatAsyncServerSqlLite.Services;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace ChatAsyncServerSqlLite.Handlers;
 
 public class MessageHandler
 {
     private readonly MessageService _messageService;
+    private readonly ILogger<MessageHandler> _logger;
 
-    public MessageHandler(MessageService messageService)
+    public MessageHandler(MessageService messageService, 
+                          ILogger<MessageHandler> logger)
     {
-        _messageService = messageService;
+        this._messageService = messageService;
+        this._logger = logger;
     }
 
     public async Task HandleAsync(ClientSession session, Packet packet)

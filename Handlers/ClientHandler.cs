@@ -1,5 +1,5 @@
 ﻿using ChatAsyncServerSqlLite.Protocols;
-using ChatAsyncServerSqlLite.Core;
+using ChatAsyncServerSqlLite.Core.Networking;
 using ChatAsyncServerSqlLite.Routing;
 using ChatAsyncServerSqlLite.Contracts;
 using System.Net.Sockets;
@@ -25,8 +25,7 @@ namespace ChatAsyncServerSqlLite.Handlers
         {
             try
             {
-                NetworkStream stream =
-                    _session.TcpClient.GetStream();
+                NetworkStream stream = _session.TcpClient.GetStream();
 
                 while (true)
                 {
@@ -40,10 +39,7 @@ namespace ChatAsyncServerSqlLite.Handlers
                     if (packet == null)
                         continue;
 
-                    await _router.RouteAsync(
-                        _session,
-                        packet
-                    );
+                    await _router.RouteAsync(_session, packet);
                 }
             }
             finally

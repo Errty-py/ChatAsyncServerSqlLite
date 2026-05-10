@@ -15,11 +15,6 @@ namespace ChatAsyncServerSqlLite.Data.Configurations
                   .IsRequired();
 
             entity.Property(m => m.CreatedAt)
-                  .HasConversion(
-                      v => v.ToUniversalTime().ToString("o"),
-                      v => DateTime.Parse(v).ToUniversalTime()
-                  )
-                  .HasColumnType("TEXT")
                   .IsRequired();
 
             entity.Property(m => m.FromClientId)
