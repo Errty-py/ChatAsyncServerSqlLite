@@ -21,6 +21,12 @@ using Microsoft.Extensions.Configuration;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 
+IConfigurationSection serverSection = builder.Configuration.GetSection("Server");
+
+string ip = serverSection["Ip"] ?? "0.0.0.0";
+
+int port = int.Parse(serverSection["Port"] ?? "7000");
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
@@ -35,14 +41,13 @@ builder.Logging.AddSerilog();
 builder.Services.AddDbContext<AppDbContext>(options => 
 {
     options.UseSqlite(
-        builder.Configuration
-               .GetConnectionString("Default"));
+        builder.Configuration.GetConnectionString("Default"));
 });
 
 builder.Services.AddSingleton<Server>(provider =>
     {
         return new Server(
-            new IPEndPoint(IPAddress.Any, 7000),
+            new IPEndPoint(IPAddress.Parse(ip), port),
             provider.GetRequiredService<SessionManager>(),
             provider.GetRequiredService<IServiceScopeFactory>(),
             provider.GetRequiredService<ILogger<Server>>()
