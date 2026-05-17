@@ -28,7 +28,7 @@ public class AuthHandler
     public async Task RegistrationAsync(ClientSession session, Packet packet)
     {
         _logger.LogInformation("Register request received from session");
-        Console.WriteLine(packet.Data.GetRawText());
+        
         RegisterRequest? request = packet.Data.Deserialize<RegisterRequest>();
 
         if (request == null)
