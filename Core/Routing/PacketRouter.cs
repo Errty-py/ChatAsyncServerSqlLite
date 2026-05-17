@@ -29,7 +29,7 @@ public class PacketRouter
         switch (packet.Type)
         {
             case PacketType.Registration:
-                _logger.LogInformation("Routing to AuthHandler.Register");
+                _logger.LogInformation("Routing to AuthHandler.Registration");
                 
                 await _authHandler.RegistrationAsync(
                     session,
