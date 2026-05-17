@@ -28,10 +28,10 @@ public class PacketRouter
 
         switch (packet.Type)
         {
-            case PacketType.Register:
+            case PacketType.Registration:
                 _logger.LogInformation("Routing to AuthHandler.Register");
                 
-                await _authHandler.HandleRegisterAsync(
+                await _authHandler.RegistrationAsync(
                     session,
                     packet
                 );
@@ -40,18 +40,26 @@ public class PacketRouter
             case PacketType.Login:
                 _logger.LogInformation("Routing to AuthHandler.Login");
                 
-                await _authHandler.HandleLoginAsync(
+                await _authHandler.LoginAsync(
                     session,
                     packet
                 );
                 break;
 
-            case PacketType.Message:
+            case PacketType.SendMessage:
                 _logger.LogInformation("Routing to MessageHandler");
                 
-                await _messageHandler.HandleAsync(
+                await _messageHandler.SendAsync(
                     session,
                     packet
+                );
+                break;
+
+            case PacketType.GetMessages:
+                _logger.LogInformation("Routing to MessageHandler");
+                
+                await _messageHandler.GetAllAsync(
+                    session
                 );
                 break;
 

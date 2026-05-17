@@ -1,17 +1,17 @@
-﻿using ChatAsyncServerSqlLite.Protocols;
-using ChatAsyncServerSqlLite.Core.Networking;
+﻿using ChatAsyncServerSqlLite.Core.Networking;
 using ChatAsyncServerSqlLite.Routing;
 using ChatAsyncServerSqlLite.Core.Sessions;
 using ChatAsyncServerSqlLite.Contracts.Packets;
 using System.Net.Sockets;
+using System.Text.Json;
 
 namespace ChatAsyncServerSqlLite.Handlers;
 
 public class ClientHandler
 {
+    private readonly ClientSession _session;
     private readonly PacketRouter _router;
     private readonly NetworkHelper _networkHelper;
-    private readonly ClientSession _session;
 
     public ClientHandler(ClientSession session,
                          PacketRouter router,
@@ -30,22 +30,26 @@ public class ClientHandler
 
             while (true)
             {
-                byte[] data = await _networkHelper.ReadAsync(stream);
+                string? json = await _networkHelper.ReadAsync(stream);
 
-                if (data.Length == 0)
+                if (json is null)
                     break;
 
-                Packet? packet = PacketSerializer.Deserialize<Packet>(data);
+                Packet? packet = JsonSerializer.Deserialize<Packet>(json);
 
-                if (packet == null)
+                if (packet is null)
                     continue;
 
                 await _router.RouteAsync(_session, packet);
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
         finally
         {
-            _session.TcpClient.Close();
+            _session.TcpClient.Dispose();
         }
     }
 }

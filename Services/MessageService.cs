@@ -3,9 +3,8 @@ using ChatAsyncServerSqlLite.Contracts.Requests;
 using ChatAsyncServerSqlLite.Contracts.Responses;
 using ChatAsyncServerSqlLite.Core.Sessions;
 using ChatAsyncServerSqlLite.Data.Entities;
-using ChatAsyncServerSqlLite.Protocols;
 using Microsoft.Extensions.Logging;
-
+using System.Text.Json;
 namespace ChatAsyncServerSqlLite.Services;
 
 public class MessageService
@@ -51,11 +50,42 @@ public class MessageService
             CreatedAt = message.CreatedAt
         };
 
-        byte[] data = PacketSerializer.Serialize(response);
+        string data = JsonSerializer.Serialize(response);
 
         _logger.LogInformation("Message from client {ClientId} broadcasted",
                                session.ClientId);
 
         await _broadcaster.BroadcastAsync(data, session);
+    }
+
+    public async Task<List<MessageResponse>> GetAllAsync(ClientSession session)
+    {
+        if (!session.IsAuthenticated || session.ClientId is null)
+        {
+            _logger.LogWarning(
+                "Unauthenticated session {SessionId} tried to get messages",
+                session.SessionId);
+
+            return [];
+        }
+
+        List<MessageEntity> messages = await _repository.GetAllAsync();
+
+        List<MessageResponse> responses =
+            messages.Select(message => new MessageResponse
+            {
+                FromClientId = message.FromClientId,
+                SenderName = session.Name,
+                Text = message.Text,
+                CreatedAt = message.CreatedAt
+            })
+            .ToList();
+
+        _logger.LogInformation(
+            "Client {ClientId} received {Count} messages",
+            session.ClientId,
+            responses.Count);
+
+        return responses;
     }
 }

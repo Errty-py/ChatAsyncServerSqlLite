@@ -4,6 +4,6 @@ namespace ChatAsyncServerSqlLite.Contracts.Packets;
 
 public class Packet
 {
-    public string Type { get; set; } = string.Empty;
+    public PacketType Type { get; set; }
     public JsonElement Data { get; set; }
 }

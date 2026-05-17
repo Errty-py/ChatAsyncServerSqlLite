@@ -19,7 +19,7 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
         this._logger = logger;
     }
 
-    public async Task BroadcastAsync(byte[] data, ClientSession sender)
+    public async Task BroadcastAsync(string data, ClientSession sender)
     {
         var sessions = _sessionManager.GetAll();
 
@@ -45,7 +45,7 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
             {
                 var stream = session.TcpClient.GetStream();
                 
-                await _networkHelper.SendAsync(data, stream);
+                await _networkHelper.WriteAsync(stream, data);
 
                 sentCount++;
             }

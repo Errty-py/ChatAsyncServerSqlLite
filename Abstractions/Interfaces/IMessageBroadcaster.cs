@@ -4,5 +4,5 @@ namespace ChatAsyncServerSqlLite.Abstractions.Interfaces;
 
 public interface IMessageBroadcaster
 {
-    Task BroadcastAsync(byte[] data, ClientSession sender);
+    Task BroadcastAsync(string data, ClientSession sender);
 }

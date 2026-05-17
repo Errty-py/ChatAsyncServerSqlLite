@@ -1,5 +1,4 @@
-﻿using ChatAsyncServerSqlLite.Protocols;
-using ChatAsyncServerSqlLite.Contracts.Packets;
+﻿using ChatAsyncServerSqlLite.Contracts.Packets;
 using ChatAsyncServerSqlLite.Contracts.Requests;
 using ChatAsyncServerSqlLite.Services;
 using ChatAsyncServerSqlLite.Core.Networking;
@@ -7,6 +6,8 @@ using ChatAsyncServerSqlLite.Core.Sessions;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Text;
+
 namespace ChatAsyncServerSqlLite.Handlers;
 
 public class AuthHandler
@@ -24,12 +25,11 @@ public class AuthHandler
         this._logger = logger;
     }
 
-    public async Task HandleRegisterAsync(ClientSession session, Packet packet)
+    public async Task RegistrationAsync(ClientSession session, Packet packet)
     {
         _logger.LogInformation("Register request received from session");
 
-        RegisterRequest? request = packet.Data
-                                            .Deserialize<RegisterRequest>();
+        RegisterRequest? request = packet.Data.Deserialize<RegisterRequest>();
 
         if (request == null)
         {
@@ -54,19 +54,18 @@ public class AuthHandler
                 response.Message);
         }
 
-        byte[] data = PacketSerializer.Serialize(response);
+        string data = JsonSerializer.Serialize(response);
 
         NetworkStream stream = session.TcpClient.GetStream();
         
-        await _networkHelper.SendAsync(data, stream);
+        await _networkHelper.WriteAsync(stream, data);
     }
 
-    public async Task HandleLoginAsync(ClientSession session, Packet packet)
+    public async Task LoginAsync(ClientSession session, Packet packet)
     {
         _logger.LogInformation("Login attempt received");
-        
-        LoginRequest? request = packet.Data
-                                        .Deserialize<LoginRequest>();
+
+        LoginRequest? request = packet.Data.Deserialize<LoginRequest>();
 
         if (request == null)
         {
@@ -96,10 +95,10 @@ public class AuthHandler
                 response.Message);
         }
 
-        byte[] data = PacketSerializer.Serialize(response);
+        string data = JsonSerializer.Serialize(response);
 
         NetworkStream stream = session.TcpClient.GetStream();
     
-        await _networkHelper.SendAsync(data, stream);
+        await _networkHelper.WriteAsync(stream, data);
     }
 }

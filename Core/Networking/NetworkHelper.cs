@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
+using System.Text;
 namespace ChatAsyncServerSqlLite.Core.Networking;
 
 public class NetworkHelper
@@ -11,81 +12,49 @@ public class NetworkHelper
         _logger = logger;
     }
 
-    public async Task<byte[]> ReadAsync(NetworkStream stream)
+    public async Task WriteAsync(
+        NetworkStream stream,
+        string json)
+    {
+        byte[] data = Encoding.UTF8.GetBytes(json);
+
+        byte[] length = BitConverter.GetBytes(data.Length);
+
+        await stream.WriteAsync(length);
+
+        await stream.WriteAsync(data);
+    }
+
+    public async Task<string?> ReadAsync(
+        NetworkStream stream)
     {
         byte[] lengthBuffer = new byte[4];
 
+        int read = await stream.ReadAsync(lengthBuffer);
+
+        if (read == 0)
+            return null;
+
+        int length = BitConverter.ToInt32(lengthBuffer);
+
+        byte[] data = new byte[length];
+
         int totalRead = 0;
 
-        while (totalRead < 4)
+        while (totalRead < length)
         {
-            int read = await stream.ReadAsync(
-                lengthBuffer.AsMemory(totalRead, 4 - totalRead));
+            int currentRead =
+                await stream.ReadAsync(
+                    data.AsMemory(
+                        totalRead,
+                        length - totalRead));
 
-            if (read == 0)
-            {
-                _logger.LogWarning("Stream closed while reading length prefix");
-                return Array.Empty<byte>();
-            }
+            if (currentRead == 0)
+                return null;
 
-            totalRead += read;
+            totalRead += currentRead;
         }
 
-        int length = BitConverter.ToInt32(lengthBuffer, 0);
-
-        if (length <= 0 || length > 10_000_000)
-        {
-            _logger.LogWarning(
-                "Invalid packet length: {Length}",
-                length);
-
-            return Array.Empty<byte>();
-        }
-
-        byte[] buffer = new byte[length];
-        int offset = 0;
-
-        while (offset < length)
-        {
-            int chunk = await stream.ReadAsync(
-                buffer.AsMemory(offset, length - offset));
-
-            if (chunk == 0)
-            {
-                _logger.LogWarning(
-                    "Stream closed while reading payload. Expected {Length}, got {Offset}",
-                    length,
-                    offset);
-
-                return Array.Empty<byte>();
-            }
-
-            offset += chunk;
-        }
-
-        _logger.LogDebug(
-            "Received packet {Length} bytes",
-            length);
-
-        return buffer;
-    }
-
-    public async Task SendAsync(byte[] data, NetworkStream stream)
-    {
-        try
-        {
-            byte[] lengthPrefix = BitConverter.GetBytes(data.Length);
-
-            await stream.WriteAsync(lengthPrefix);
-            await stream.WriteAsync(data);
-
-            _logger.LogDebug(
-                "Sent packet {Length} bytes",
-                data.Length);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to send packet");
-        }
+        return Encoding.UTF8.GetString(data);
     }
 }

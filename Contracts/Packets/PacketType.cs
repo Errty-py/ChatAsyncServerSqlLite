@@ -1,8 +1,10 @@
 ﻿namespace ChatAsyncServerSqlLite.Contracts.Packets;
 
-public static class PacketType
+public enum PacketType
 {
-    public const string Register = "register";
-    public const string Login = "login";
-    public const string Message = "message";
+    Registration,
+    Login,
+
+    SendMessage,
+    GetMessages
 }
