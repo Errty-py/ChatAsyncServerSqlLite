@@ -11,17 +11,17 @@ public class MessageConfiguration : IEntityTypeConfiguration<MessageEntity>
         entity.HasKey(m => m.Id);
 
         entity.Property(m => m.Text)
-                .IsRequired();
+              .IsRequired();
 
         entity.Property(m => m.CreatedAt)
-                .IsRequired();
+              .IsRequired();
 
         entity.Property(m => m.FromClientId)
-                .IsRequired();
+              .IsRequired();
 
-        entity.HasOne<ClientEntity>()
-                .WithMany()
-                .HasForeignKey(m => m.FromClientId)
-                .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(m => m.FromClient)
+              .WithMany()
+              .HasForeignKey(m => m.FromClientId)
+              .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -9,5 +9,5 @@ public enum PacketType
     Login,
 
     SendMessage,
-    GetMessages
+    GetAllMessages
 }

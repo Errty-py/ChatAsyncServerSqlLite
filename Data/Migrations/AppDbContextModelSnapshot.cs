@@ -70,11 +70,13 @@ namespace ChatAsyncServerSqlLite.Data.Migrations
 
             modelBuilder.Entity("ChatAsyncServerSqlLite.Data.Entities.MessageEntity", b =>
                 {
-                    b.HasOne("ChatAsyncServerSqlLite.Data.Entities.ClientEntity", null)
+                    b.HasOne("ChatAsyncServerSqlLite.Data.Entities.ClientEntity", "FromClient")
                         .WithMany()
                         .HasForeignKey("FromClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("FromClient");
                 });
 #pragma warning restore 612, 618
         }

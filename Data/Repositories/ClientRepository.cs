@@ -26,7 +26,8 @@ public class ClientRepository : IClientRepository
 
     public async Task<ClientEntity?> GetByLoginAsync(string login)
     {
-        return await _dbContext.Clients.FirstOrDefaultAsync(c => c.Login == login);
+        return await _dbContext.Clients.AsNoTracking()
+                                       .FirstOrDefaultAsync(c => c.Login == login);
     }
 
     public async Task<bool> ExistsByLoginAsync(string login)

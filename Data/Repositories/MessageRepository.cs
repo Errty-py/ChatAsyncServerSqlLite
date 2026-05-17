@@ -21,7 +21,10 @@ public class MessageRepository : IMessageRepository
 
     public async Task<List<MessageEntity>> GetAllAsync()
     {
-        return await _dbContext.Messages.AsNoTracking().ToListAsync();
+        return await _dbContext.Messages
+                               .Include(x => x.FromClient.Name)
+                               .AsNoTracking()
+                               .ToListAsync();
     }
 
     public async Task RemoveAsync(int id) 

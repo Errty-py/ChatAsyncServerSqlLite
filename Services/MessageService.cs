@@ -75,10 +75,11 @@ public class MessageService
             messages.Select(message => new MessageResponse
             {
                 FromClientId = message.FromClientId,
-                SenderName = session.Name,
+                SenderName = message.FromClient.Login,
                 Text = message.Text,
                 CreatedAt = message.CreatedAt
             })
+            
             .ToList();
 
         _logger.LogInformation(

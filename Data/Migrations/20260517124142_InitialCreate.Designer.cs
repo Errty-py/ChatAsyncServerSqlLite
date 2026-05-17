@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatAsyncServerSqlLite.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260510102153_InitialCreate")]
+    [Migration("20260517124142_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -73,11 +73,13 @@ namespace ChatAsyncServerSqlLite.Data.Migrations
 
             modelBuilder.Entity("ChatAsyncServerSqlLite.Data.Entities.MessageEntity", b =>
                 {
-                    b.HasOne("ChatAsyncServerSqlLite.Data.Entities.ClientEntity", null)
+                    b.HasOne("ChatAsyncServerSqlLite.Data.Entities.ClientEntity", "FromClient")
                         .WithMany()
                         .HasForeignKey("FromClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("FromClient");
                 });
 #pragma warning restore 612, 618
         }

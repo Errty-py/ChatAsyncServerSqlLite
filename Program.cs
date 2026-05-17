@@ -66,14 +66,12 @@ builder.Services.AddScoped<PacketRouter>();
 
 IHost host = builder.Build();
 
-Server server = host.Services.GetRequiredService<Server>();
+var server = host.Services.GetRequiredService<Server>();
 
-Task serverTask = server.StartAsync();
+await server.StartAsync();
 
 Console.ReadLine();
 
 await server.StopAsync();
-
-await serverTask;
 
 Log.CloseAndFlush();

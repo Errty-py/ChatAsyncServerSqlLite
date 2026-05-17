@@ -55,7 +55,7 @@ public class PacketRouter
                 );
                 break;
 
-            case PacketType.GetMessages:
+            case PacketType.GetAllMessages:
                 _logger.LogInformation("Routing to MessageHandler");
                 
                 await _messageHandler.GetAllAsync(
