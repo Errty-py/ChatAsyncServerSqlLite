@@ -1,11 +1,11 @@
-﻿using ChatAsyncServerSqlLite.Core.Networking;
-using ChatAsyncServerSqlLite.Routing;
-using ChatAsyncServerSqlLite.Core.Sessions;
-using ChatAsyncServerSqlLite.Contracts.Packets;
+﻿using TcpChatServer.Core.Networking;
+using TcpChatServer.Routing;
+using TcpChatServer.Core.Sessions;
+using TcpChatServer.Contracts.Packets;
 using System.Net.Sockets;
 using System.Text.Json;
 
-namespace ChatAsyncServerSqlLite.Handlers;
+namespace TcpChatServer.Handlers;
 
 public class ClientHandler
 {

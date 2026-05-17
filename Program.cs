@@ -1,12 +1,12 @@
-﻿using ChatAsyncServerSqlLite.Abstractions.Interfaces;
-using ChatAsyncServerSqlLite.Core.Networking;
-using ChatAsyncServerSqlLite.Core.Sessions;
-using ChatAsyncServerSqlLite.Core;
-using ChatAsyncServerSqlLite.Data;
-using ChatAsyncServerSqlLite.Data.Repositories;
-using ChatAsyncServerSqlLite.Handlers;
-using ChatAsyncServerSqlLite.Routing;
-using ChatAsyncServerSqlLite.Services;
+﻿using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Core.Networking;
+using TcpChatServer.Core.Sessions;
+using TcpChatServer.Core;
+using TcpChatServer.Data;
+using TcpChatServer.Data.Repositories;
+using TcpChatServer.Handlers;
+using TcpChatServer.Routing;
+using TcpChatServer.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ChatAsyncServerSqlLite.Contracts.Packets;
+namespace TcpChatServer.Contracts.Packets;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PacketType

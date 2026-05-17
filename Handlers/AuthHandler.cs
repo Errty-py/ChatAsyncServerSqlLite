@@ -1,14 +1,14 @@
-﻿using ChatAsyncServerSqlLite.Contracts.Packets;
-using ChatAsyncServerSqlLite.Contracts.Requests;
-using ChatAsyncServerSqlLite.Services;
-using ChatAsyncServerSqlLite.Core.Networking;
-using ChatAsyncServerSqlLite.Core.Sessions;
+﻿using TcpChatServer.Contracts.Packets;
+using TcpChatServer.Contracts.Requests;
+using TcpChatServer.Services;
+using TcpChatServer.Core.Networking;
+using TcpChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Text;
 
-namespace ChatAsyncServerSqlLite.Handlers;
+namespace TcpChatServer.Handlers;
 
 public class AuthHandler
 {

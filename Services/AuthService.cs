@@ -1,10 +1,10 @@
-﻿using ChatAsyncServerSqlLite.Abstractions.Interfaces;
-using ChatAsyncServerSqlLite.Contracts.Requests;
-using ChatAsyncServerSqlLite.Contracts.Responses;
-using ChatAsyncServerSqlLite.Data.Entities;
-using ChatAsyncServerSqlLite.Core.Security;
+﻿using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Contracts.Requests;
+using TcpChatServer.Contracts.Responses;
+using TcpChatServer.Data.Entities;
+using TcpChatServer.Core.Security;
 
-namespace ChatAsyncServerSqlLite.Services;
+namespace TcpChatServer.Services;
 
 public class AuthService
 {

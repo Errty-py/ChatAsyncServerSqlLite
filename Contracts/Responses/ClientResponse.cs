@@ -1,4 +1,4 @@
-﻿namespace ChatAsyncServerSqlLite.Contracts.Responses;
+﻿namespace TcpChatServer.Contracts.Responses;
 
 public class ClientResponse : BaseResponse
 {

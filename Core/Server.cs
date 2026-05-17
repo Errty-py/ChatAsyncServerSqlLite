@@ -1,13 +1,13 @@
-﻿using ChatAsyncServerSqlLite.Core.Networking;
-using ChatAsyncServerSqlLite.Handlers;
-using ChatAsyncServerSqlLite.Routing;
-using ChatAsyncServerSqlLite.Core.Sessions;
+﻿using TcpChatServer.Core.Networking;
+using TcpChatServer.Handlers;
+using TcpChatServer.Routing;
+using TcpChatServer.Core.Sessions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Net;
 
-namespace ChatAsyncServerSqlLite.Core;
+namespace TcpChatServer.Core;
 
 public class Server
 {

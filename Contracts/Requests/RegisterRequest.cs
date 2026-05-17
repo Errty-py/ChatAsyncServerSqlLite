@@ -1,4 +1,4 @@
-﻿namespace ChatAsyncServerSqlLite.Contracts.Requests;
+﻿namespace TcpChatServer.Contracts.Requests;
 
 public class RegisterRequest
 {

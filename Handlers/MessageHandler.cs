@@ -1,14 +1,14 @@
-﻿using ChatAsyncServerSqlLite.Contracts.Requests;
-using ChatAsyncServerSqlLite.Contracts.Packets;
-using ChatAsyncServerSqlLite.Core.Sessions;
-using ChatAsyncServerSqlLite.Services;
+﻿using TcpChatServer.Contracts.Requests;
+using TcpChatServer.Contracts.Packets;
+using TcpChatServer.Core.Sessions;
+using TcpChatServer.Services;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using ChatAsyncServerSqlLite.Contracts.Responses;
+using TcpChatServer.Contracts.Responses;
 using System.Net.Sockets;
-using ChatAsyncServerSqlLite.Core.Networking;
+using TcpChatServer.Core.Networking;
 
-namespace ChatAsyncServerSqlLite.Handlers;
+namespace TcpChatServer.Handlers;
 
 public class MessageHandler
 {

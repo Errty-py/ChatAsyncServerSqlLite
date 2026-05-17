@@ -1,11 +1,11 @@
-﻿using ChatAsyncServerSqlLite.Abstractions.Interfaces;
-using ChatAsyncServerSqlLite.Contracts.Requests;
-using ChatAsyncServerSqlLite.Contracts.Responses;
-using ChatAsyncServerSqlLite.Core.Sessions;
-using ChatAsyncServerSqlLite.Data.Entities;
+﻿using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Contracts.Requests;
+using TcpChatServer.Contracts.Responses;
+using TcpChatServer.Core.Sessions;
+using TcpChatServer.Data.Entities;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-namespace ChatAsyncServerSqlLite.Services;
+namespace TcpChatServer.Services;
 
 public class MessageService
 {

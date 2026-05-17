@@ -1,8 +1,8 @@
-﻿using ChatAsyncServerSqlLite.Data.Configurations;
-using ChatAsyncServerSqlLite.Data.Entities;
+﻿using TcpChatServer.Data.Configurations;
+using TcpChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatAsyncServerSqlLite.Data;
+namespace TcpChatServer.Data;
 
 public class AppDbContext : DbContext
 {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ChatAsyncServerSqlLite.Data.Entities;
+using TcpChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatAsyncServerSqlLite.Data.Configurations;
+namespace TcpChatServer.Data.Configurations;
 
 public class ClientConfiguration : IEntityTypeConfiguration<ClientEntity>
 {

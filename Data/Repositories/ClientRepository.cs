@@ -1,8 +1,8 @@
-﻿using ChatAsyncServerSqlLite.Abstractions.Interfaces;
-using ChatAsyncServerSqlLite.Data.Entities;
+﻿using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatAsyncServerSqlLite.Data.Repositories;
+namespace TcpChatServer.Data.Repositories;
 
 public class ClientRepository : IClientRepository
 {

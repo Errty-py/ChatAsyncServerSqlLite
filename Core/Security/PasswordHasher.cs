@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace ChatAsyncServerSqlLite.Core.Security;
+namespace TcpChatServer.Core.Security;
 
 public static class PasswordHasher
 {

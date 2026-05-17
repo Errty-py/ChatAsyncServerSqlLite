@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text;
-namespace ChatAsyncServerSqlLite.Core.Networking;
+namespace TcpChatServer.Core.Networking;
 
 public class NetworkHelper
 {

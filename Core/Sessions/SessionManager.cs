@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 
-namespace ChatAsyncServerSqlLite.Core.Sessions;
+namespace TcpChatServer.Core.Sessions;
 
 public class SessionManager
 {

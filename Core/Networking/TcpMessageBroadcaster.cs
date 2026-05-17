@@ -1,8 +1,8 @@
-using ChatAsyncServerSqlLite.Abstractions.Interfaces;
-using ChatAsyncServerSqlLite.Core.Sessions;
+using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 
-namespace ChatAsyncServerSqlLite.Core.Networking;
+namespace TcpChatServer.Core.Networking;
 
 public class TcpMessageBroadcaster : IMessageBroadcaster
 {

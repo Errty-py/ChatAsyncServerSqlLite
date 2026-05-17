@@ -1,9 +1,9 @@
-﻿using ChatAsyncServerSqlLite.Handlers;
-using ChatAsyncServerSqlLite.Contracts.Packets;
-using ChatAsyncServerSqlLite.Core.Sessions;
+﻿using TcpChatServer.Handlers;
+using TcpChatServer.Contracts.Packets;
+using TcpChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 
-namespace ChatAsyncServerSqlLite.Routing;
+namespace TcpChatServer.Routing;
 
 public class PacketRouter
 {

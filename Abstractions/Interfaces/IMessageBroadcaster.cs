@@ -1,6 +1,6 @@
-using ChatAsyncServerSqlLite.Core.Sessions;
+using TcpChatServer.Core.Sessions;
 
-namespace ChatAsyncServerSqlLite.Abstractions.Interfaces;
+namespace TcpChatServer.Abstractions.Interfaces;
 
 public interface IMessageBroadcaster
 {

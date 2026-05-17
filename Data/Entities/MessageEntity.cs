@@ -1,4 +1,4 @@
-﻿namespace ChatAsyncServerSqlLite.Data.Entities;
+﻿namespace TcpChatServer.Data.Entities;
 
 public class MessageEntity
 {
