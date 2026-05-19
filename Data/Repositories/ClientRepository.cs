@@ -39,9 +39,4 @@ public class ClientRepository : IClientRepository
     {
         await _dbContext.Clients.Where(c => c.Id == id).ExecuteDeleteAsync();
     }
-
-    public void Dispose()
-    {
-        _dbContext.Dispose();
-    }
 }
