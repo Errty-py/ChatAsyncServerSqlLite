@@ -22,51 +22,45 @@ public class PacketRouter
 
     public async Task RouteAsync(ClientSession session, Packet packet)
     {
-        _logger.LogInformation(
-                "Packet received: {Type}",
-                packet.Type);
+        _logger.LogInformation("Packet received: {Type}",
+                               packet.Type);
 
         switch (packet.Type)
         {
             case PacketType.Registration:
                 _logger.LogInformation("Routing to AuthHandler.Registration");
                 
-                await _authHandler.RegistrationAsync(
-                    session,
-                    packet
-                );
+                await _authHandler.RegistrationAsync(session,
+                                                     packet);
+                
                 break;
 
             case PacketType.Login:
                 _logger.LogInformation("Routing to AuthHandler.Login");
                 
-                await _authHandler.LoginAsync(
-                    session,
-                    packet
-                );
+                await _authHandler.LoginAsync(session,
+                                              packet);
+                
                 break;
 
             case PacketType.SendMessage:
-                _logger.LogInformation("Routing to MessageHandler");
+                _logger.LogInformation("Routing to MessageHandler.Send");
                 
-                await _messageHandler.SendAsync(
-                    session,
-                    packet
-                );
+                await _messageHandler.SendAsync(session,
+                                                packet);
+                
                 break;
 
             case PacketType.GetAllMessages:
-                _logger.LogInformation("Routing to MessageHandler");
+                _logger.LogInformation("Routing to MessageHandler.Get");
                 
-                await _messageHandler.GetAllAsync(
-                    session
-                );
+                await _messageHandler.GetAllAsync(session);
+
                 break;
 
             default:
-                _logger.LogWarning(
-                    "Unknown packet type: {Type}",
-                    packet.Type);
+                _logger.LogWarning("Unknown packet type: {Type}",
+                                   packet.Type);
         
                 break;
         }

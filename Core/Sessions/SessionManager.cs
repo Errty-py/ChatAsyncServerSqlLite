@@ -16,16 +16,14 @@ public class SessionManager
 
     public void Add(ClientSession session)
     {
-        bool added = _sessions.TryAdd(
-            session.SessionId,
-            session);
+        bool added = _sessions.TryAdd(session.SessionId,
+                                      session);
 
         if (added)
         {
-            _logger.LogInformation(
-                "Session {SessionId} connected. Total: {Count}",
-                session.SessionId,
-                _sessions.Count);
+            _logger.LogInformation("Session {SessionId} connected. Total: {Count}",
+                                   session.SessionId,
+                                   _sessions.Count);
         }
     }
 
@@ -37,10 +35,9 @@ public class SessionManager
 
         if (removed)
         {
-            _logger.LogInformation(
-                "Session {SessionId} disconnected. Total: {Count}",
-                sessionId,
-                _sessions.Count);
+            _logger.LogInformation("Session {SessionId} disconnected. Total: {Count}",
+                                   sessionId,
+                                   _sessions.Count);
         }
     }
 

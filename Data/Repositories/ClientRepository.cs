@@ -10,7 +10,7 @@ public class ClientRepository : IClientRepository
 
     public ClientRepository(AppDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this._dbContext = dbContext;
     }
 
     public async Task AddAsync(ClientEntity client)
@@ -37,6 +37,7 @@ public class ClientRepository : IClientRepository
 
     public async Task RemoveAsync(int id) 
     {
-        await _dbContext.Clients.Where(c => c.Id == id).ExecuteDeleteAsync();
+        await _dbContext.Clients.Where(c => c.Id == id)
+                                .ExecuteDeleteAsync();
     }
 }

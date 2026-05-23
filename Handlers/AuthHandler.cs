@@ -6,7 +6,6 @@ using TcpChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.Json;
-using System.Text;
 
 namespace TcpChatServer.Handlers;
 
@@ -42,16 +41,14 @@ public class AuthHandler
 
         if (response.Success)
         {
-            _logger.LogInformation(
-                "User registered successfully: {Login}",
-                request.Login);
+            _logger.LogInformation("User registered successfully: {Login}",
+                                   request.Login);
         }
         else
         {
-            _logger.LogWarning(
-                "Registration failed for login {Login}: {Message}",
-                request.Login,
-                response.Message);
+            _logger.LogWarning("Registration failed for login {Login}: {Message}",
+                               request.Login,
+                               response.Message);
         }
 
         string data = JsonSerializer.Serialize(response);
@@ -82,17 +79,15 @@ public class AuthHandler
             session.Name = response.Name;
             session.IsAuthenticated = true;
 
-            _logger.LogInformation(
-                "Login success: {ClientId} ({Name})",
-                response.Id,
-                response.Name);
+            _logger.LogInformation("Login success: {ClientId} ({Name})",
+                                   response.Id,
+                                   response.Name);
         }
         else
         {
-            _logger.LogWarning(
-                "Login failed for {Login}: {Message}",
-                request.Login,
-                response.Message);
+            _logger.LogWarning("Login failed for {Login}: {Message}",
+                               request.Login,
+                               response.Message);
         }
 
         string data = JsonSerializer.Serialize(response);

@@ -16,45 +16,64 @@ public class NetworkHelper
         NetworkStream stream,
         string json)
     {
-        byte[] data = Encoding.UTF8.GetBytes(json);
+        try
+        {
+            byte[] data = Encoding.UTF8.GetBytes(json);
 
-        byte[] length = BitConverter.GetBytes(data.Length);
+            byte[] length = BitConverter.GetBytes(data.Length);
 
-        await stream.WriteAsync(length);
+            await stream.WriteAsync(length);
+            await stream.WriteAsync(data);
 
-        await stream.WriteAsync(data);
+            _logger.LogDebug("Received packet {Length} bytes",
+                             length);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send packet");
+        }
     }
 
-    public async Task<string?> ReadAsync(
-        NetworkStream stream)
+    public async Task<string?> ReadAsync(NetworkStream stream)
     {
-        byte[] lengthBuffer = new byte[4];
-
-        int read = await stream.ReadAsync(lengthBuffer);
-
-        if (read == 0)
-            return null;
-
-        int length = BitConverter.ToInt32(lengthBuffer);
-
-        byte[] data = new byte[length];
-
-        int totalRead = 0;
-
-        while (totalRead < length)
+        try
         {
-            int currentRead =
-                await stream.ReadAsync(
-                    data.AsMemory(
-                        totalRead,
-                        length - totalRead));
+            byte[] lengthBuffer = new byte[4];
 
-            if (currentRead == 0)
+            int read = await stream.ReadAsync(lengthBuffer);
+
+            if (read == 0)
+            {
+                _logger.LogWarning("Stream closed while reading length prefix");
                 return null;
+            }
 
-            totalRead += currentRead;
+            int length = BitConverter.ToInt32(lengthBuffer);
+
+            byte[] data = new byte[length];
+
+            int totalRead = 0;
+
+            while (totalRead < length)
+            {
+                int currentRead =
+                    await stream.ReadAsync(
+                        data.AsMemory(totalRead,
+                                      length - totalRead));
+
+                if (currentRead == 0)
+                    return null;
+
+                totalRead += currentRead;
+            }
+            
+            return Encoding.UTF8.GetString(data);
         }
-
-        return Encoding.UTF8.GetString(data);
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Failed to read packet");
+            
+            return null;           
+        }
     }
 }

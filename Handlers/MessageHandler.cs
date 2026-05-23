@@ -37,15 +37,12 @@ public class MessageHandler
 
         if (request is null)
         {
-            _logger.LogWarning(
-                "Invalid SendMessageRequest");
+            _logger.LogWarning("Invalid SendMessageRequest");
 
             return;
         }
 
-        await _messageService.SendAsync(
-            request,
-            session);
+        await _messageService.SendAsync(request, session);
     }
 
     public async Task GetAllAsync(ClientSession session)

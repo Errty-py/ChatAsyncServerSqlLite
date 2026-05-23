@@ -11,17 +11,17 @@ public class ClientConfiguration : IEntityTypeConfiguration<ClientEntity>
         entity.HasKey(c => c.Id);
 
         entity.Property(c => c.Name)
-                .HasMaxLength(50)
-                .IsRequired();
+              .HasMaxLength(50)
+              .IsRequired();
 
         entity.Property(c => c.Login)
-                .HasMaxLength(50)
-                .IsRequired();
+              .HasMaxLength(50)
+              .IsRequired();
 
         entity.HasIndex(c => c.Login)
-                .IsUnique();
+              .IsUnique();
 
         entity.Property(c => c.PasswordHash)
-                .IsRequired();
+              .IsRequired();
     }
 }

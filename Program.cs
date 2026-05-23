@@ -10,13 +10,13 @@ using TcpChatServer.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using System.Net;
 
 using Serilog;
-using Microsoft.Extensions.Configuration;
 
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
@@ -30,9 +30,8 @@ int port = int.Parse(serverSection["Port"] ?? "7000");
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
-    .WriteTo.File(
-        "logs/log-.txt",
-        rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/log-.txt",
+                  rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 builder.Logging.ClearProviders();
@@ -46,12 +45,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton<Server>(provider =>
     {
-        return new Server(
-            new IPEndPoint(IPAddress.Parse(ip), port),
-            provider.GetRequiredService<SessionManager>(),
-            provider.GetRequiredService<IServiceScopeFactory>(),
-            provider.GetRequiredService<ILogger<Server>>()
-        );
+        return new Server(new IPEndPoint(IPAddress.Parse(ip), port),
+                          provider.GetRequiredService<SessionManager>(),
+                          provider.GetRequiredService<IServiceScopeFactory>(),
+                          provider.GetRequiredService<ILogger<Server>>());
     });
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
@@ -73,7 +70,10 @@ IHost host = builder.Build();
 
 var server = host.Services.GetRequiredService<Server>();
 
-await server.StartAsync();
+_ = Task.Run(async () =>
+{
+    await server.StartAsync();    
+});
 
 Console.ReadLine();
 

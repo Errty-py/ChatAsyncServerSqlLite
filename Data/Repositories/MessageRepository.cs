@@ -10,7 +10,7 @@ public class MessageRepository : IMessageRepository
 
     public MessageRepository(AppDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this._dbContext = dbContext;
     }
 
     public async Task AddAsync(MessageEntity message)
@@ -21,10 +21,9 @@ public class MessageRepository : IMessageRepository
 
     public async Task<List<MessageEntity>> GetAllAsync()
     {
-        return await _dbContext.Messages
-                               .Include(x => x.FromClient.Name)
-                               .AsNoTracking()
-                               .ToListAsync();
+        return await _dbContext.Messages.Include(x => x.FromClient.Name)
+                                        .AsNoTracking()
+                                        .ToListAsync();
     }
 
     public async Task RemoveAsync(int id) 

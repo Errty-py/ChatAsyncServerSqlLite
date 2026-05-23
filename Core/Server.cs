@@ -25,7 +25,6 @@ public class Server
     {
         this._iPEndPoint = iPEndPoint;
         this._listener = new TcpListener(_iPEndPoint);
-
         this._sessionManager = sessionManager;
         this._scopeFactory = scopeFactory;
         this._logger = logger;
@@ -54,7 +53,7 @@ public class Server
                 _sessionManager.Add(session);
                 
                 _logger.LogInformation("Client connected from {Endpoint}",
-                                        tcpClient.Client.RemoteEndPoint);
+                                       tcpClient.Client.RemoteEndPoint);
 
                 _ = Task.Run(async () =>
                 {
@@ -73,7 +72,8 @@ public class Server
                     {
                         _sessionManager.Remove(session.SessionId);
                         tcpClient.Close();
-                        _logger.LogInformation("Client disconnected {ClientId}", session.ClientId);
+                        _logger.LogInformation("Client disconnected {ClientId}",
+                                               session.ClientId);
                     }
                 });
             }
@@ -87,9 +87,7 @@ public class Server
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Server ERROR");
+            _logger.LogError(ex, "Server ERROR");
         }
     }
 
@@ -105,6 +103,7 @@ public class Server
         }
 
         _logger.LogInformation("Server stoped");
+        
         await Task.CompletedTask;
     }
 }

@@ -12,7 +12,7 @@ public class AuthService
 
     public AuthService(IClientRepository repository)
     {
-        _repository = repository;
+        this._repository = repository;
     }
 
     public async Task<BaseResponse> RegisterAsync(RegisterRequest request)

@@ -27,15 +27,13 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
         int skippedCount = 0;
         int errorCount = 0;
 
-        _logger.LogInformation(
-            "Broadcast started from client {ClientId}. Target sessions: {Count}",
-            sender.ClientId,
-            sessions.Count);
+        _logger.LogInformation("Broadcast started from client {ClientId}. Target sessions: {Count}",
+                               sender.ClientId,
+                               sessions.Count);
 
         foreach (var session in sessions)
         {
-            if (!session.IsAuthenticated || 
-                session.ClientId == sender.ClientId)
+            if (!session.IsAuthenticated || session.ClientId == sender.ClientId)
             {
                 skippedCount++;
                 continue;
@@ -53,17 +51,15 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
             {
                 errorCount++;
 
-                _logger.LogError(
-                    ex,
-                    "Failed to send message to client {ClientId}",
-                    session.ClientId);
+                _logger.LogError(ex,
+                                 "Failed to send message to client {ClientId}",
+                                 session.ClientId);
             }
         }
 
-        _logger.LogInformation(
-            "Broadcast finished. Sent: {Sent}, Skipped: {Skipped}, Errors: {Errors}",
-            sentCount,
-            skippedCount,
-            errorCount);
+        _logger.LogInformation("Broadcast finished. Sent: {Sent}, Skipped: {Skipped}, Errors: {Errors}",
+                               sentCount,
+                               skippedCount,
+                               errorCount);
     }
 }
