@@ -6,7 +6,7 @@ public class ClientSession
 {
     public Guid SessionId { get; init; } = Guid.NewGuid();
 
-    public int? ClientId { get; set; }
+    public int ClientId { get; set; }
 
     public required TcpClient TcpClient { get; init; }
 

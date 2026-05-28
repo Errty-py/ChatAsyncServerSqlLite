@@ -26,7 +26,7 @@ public class MessageService
         
         MessageEntity message = new MessageEntity()
         {
-            FromClientId = session.ClientId.Value,
+            FromClientId = session.ClientId,
             Text = request.Text,
             CreatedAt = DateTime.UtcNow
         };
