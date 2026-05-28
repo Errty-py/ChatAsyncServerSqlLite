@@ -8,14 +8,17 @@ namespace TcpChatServer.Routing;
 public class PacketRouter
 {
     private readonly AuthHandler _authHandler;
+    private readonly ClientHandler _clientHandler;
     private readonly MessageHandler _messageHandler;
     private readonly ILogger<PacketRouter> _logger;
 
     public PacketRouter(AuthHandler authHandler,
+                        ClientHandler clientHandler,
                         MessageHandler messageHandler,
                         ILogger<PacketRouter> logger)
     {
         this._authHandler = authHandler;
+        this._clientHandler = clientHandler;
         this._messageHandler = messageHandler;
         this._logger = logger;
     }
@@ -43,6 +46,22 @@ public class PacketRouter
                 
                 break;
 
+            
+
+            case PacketType.GetClientById:
+                _logger.LogInformation("Routing to ClientHandler.GetById");
+
+                await _clientHandler.GetByIdAsync(session, packet);
+
+                break;
+
+            case PacketType.DeleteClientById:
+                _logger.LogInformation("Routing to ClientHandler.DeleteById");
+
+                await _clientHandler.DeleteAsync(session, packet);
+                
+                break;
+
             case PacketType.SendMessage:
                 _logger.LogInformation("Routing to MessageHandler.Send");
                 
@@ -52,7 +71,7 @@ public class PacketRouter
                 break;
 
             case PacketType.GetAllMessages:
-                _logger.LogInformation("Routing to MessageHandler.Get");
+                _logger.LogInformation("Routing to MessageHandler.GetAll");
                 
                 await _messageHandler.GetAllAsync(session);
 

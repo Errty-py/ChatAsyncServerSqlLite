@@ -4,52 +4,103 @@ using TcpChatServer.Core.Sessions;
 using TcpChatServer.Contracts.Packets;
 using System.Net.Sockets;
 using System.Text.Json;
+using TcpChatServer.Contracts.Requests;
+using Microsoft.Extensions.Logging;
+using TcpChatServer.Contracts.Responses;
+using TcpChatServer.Services;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace TcpChatServer.Handlers;
 
 public class ClientHandler
 {
-    private readonly ClientSession _session;
-    private readonly PacketRouter _router;
+    private readonly ClientService _service;
     private readonly NetworkHelper _networkHelper;
+    private readonly Logger<ClientHandler> _logger;
 
-    public ClientHandler(ClientSession session,
-                         PacketRouter router,
-                         NetworkHelper networkHelper)
+    public ClientHandler(ClientService service,
+                         NetworkHelper networkHelper,
+                         Logger<ClientHandler> logger)
     {
-        this._session = session;
-        this._router = router;
+        this._service = service;
         this._networkHelper = networkHelper;
+        this._logger = logger;
+    }
+    
+    public async Task GetAllAsync(ClientSession session)
+    {
+        if (!session.IsAuthenticated)
+            return;
+
+        List<ClientResponse> responses = await _service.GetAllAsync();
+
+        string data = JsonSerializer.Serialize(responses);
+
+        NetworkStream stream = session.TcpClient.GetStream();
+
+        await _networkHelper.WriteAsync(stream, data);
     }
 
-    public async Task HandleAsync()
+    public async Task GetByIdAsync(ClientSession session, Packet packet)
     {
-        try
+        if (!session.IsAuthenticated)
+            return;
+        
+        int? id = packet.Data.Deserialize<int>();
+    
+        if (id is null)
         {
-            NetworkStream stream = _session.TcpClient.GetStream();
-
-            while (true)
-            {
-                string? json = await _networkHelper.ReadAsync(stream);
-
-                if (json is null)
-                    break;
-
-                Packet? packet = JsonSerializer.Deserialize<Packet>(json);
-
-                if (packet is null)
-                    continue;
-
-                await _router.RouteAsync(_session, packet);
-            }
+            _logger.LogWarning("Invalid register request format");
+            return;
         }
-        catch (Exception ex)
+        
+        ClientResponse response = await _service.GetByIdAsync((int)id);
+
+        if(response.Success)
+            _logger.LogInformation("The client was successfully received");
+        else
+            _logger.LogWarning("Receipt failed");
+
+        string data = JsonSerializer.Serialize(response);
+
+        NetworkStream stream = session.TcpClient.GetStream();
+
+        await _networkHelper.WriteAsync(stream, data);
+    }
+
+    public async Task DeleteAsync(ClientSession session, Packet packet)
+    {
+        if (!session.IsAuthenticated)
+            return;
+
+        int? id = packet.Data.Deserialize<int>();
+
+        if (id is null)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogWarning("Invalid delete client request format");
+            return;
         }
-        finally
+        if (session.ClientId != id)
         {
-            _session.TcpClient.Dispose();
+            _logger.LogWarning("A client:{ClientId} cannot make changes to another client with id:{id}",
+                               session.ClientId,
+                               id); 
+            return;
         }
+        
+
+        BaseResponse response = await _service.DeleteAsync((int)id);
+
+        if(response.Success)
+            _logger.LogInformation("The client was successfully removed.");
+        
+        else
+            _logger.LogWarning("Removal failed");
+
+        string data = JsonSerializer.Serialize(response);
+
+        NetworkStream stream = session.TcpClient.GetStream();
+
+        await _networkHelper.WriteAsync(stream, data);
     }
 }

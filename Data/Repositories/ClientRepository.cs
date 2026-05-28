@@ -13,10 +13,15 @@ public class ClientRepository : IClientRepository
         this._dbContext = dbContext;
     }
 
-    public async Task AddAsync(ClientEntity client)
+    public async Task CreateAsync(ClientEntity client)
     {
         await _dbContext.Clients.AddAsync(client);
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<List<ClientEntity>> GetAllAsync()
+    {
+        return await _dbContext.Clients.AsNoTracking().ToListAsync();
     }
 
     public async Task<ClientEntity?> GetByIdAsync(int id)
@@ -35,9 +40,10 @@ public class ClientRepository : IClientRepository
         return await _dbContext.Clients.AnyAsync(c => c.Login == login);
     }
 
-    public async Task RemoveAsync(int id) 
+    public async Task DeleteAsync(ClientEntity clientEntity) 
     {
-        await _dbContext.Clients.Where(c => c.Id == id)
-                                .ExecuteDeleteAsync();
+        _dbContext.Clients.Remove(clientEntity);
+
+        await _dbContext.SaveChangesAsync();
     }
 }

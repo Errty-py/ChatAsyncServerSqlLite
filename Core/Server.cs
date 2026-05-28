@@ -62,7 +62,7 @@ public class Server
                     var router = scope.ServiceProvider.GetRequiredService<PacketRouter>();
                     var networkHelper = scope.ServiceProvider.GetRequiredService<NetworkHelper>();
 
-                    var handler = new ClientHandler(session, router, networkHelper);
+                    var handler = new ConnectionHandler(session, router, networkHelper);
 
                     try
                     {

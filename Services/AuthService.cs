@@ -35,7 +35,7 @@ public class AuthService
             PasswordHash = PasswordHasher.Hash(request.Password)
         };
 
-        await _repository.AddAsync(client);
+        await _repository.CreateAsync(client);
 
         return new BaseResponse
         {
