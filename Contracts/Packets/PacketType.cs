@@ -8,6 +8,7 @@ public enum PacketType
     Registration,
     Login,
 
+    GetAllClients,
     GetClientById,
     DeleteClientById,
 

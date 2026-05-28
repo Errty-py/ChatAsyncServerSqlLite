@@ -46,7 +46,12 @@ public class PacketRouter
                 
                 break;
 
-            
+            case PacketType.GetAllClients:
+                _logger.LogInformation("Routing to ClientHandler.GetAll");
+                
+                await _clientHandler.GetAllAsync(session);
+                
+                break;
 
             case PacketType.GetClientById:
                 _logger.LogInformation("Routing to ClientHandler.GetById");
