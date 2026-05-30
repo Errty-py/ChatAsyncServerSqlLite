@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using TcpChatServer.Contracts.Responses;
 using TcpChatServer.Services;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.AspNetCore.Mvc;
+using TcpChatServer.Abstractions.Interfaces;
 
 namespace TcpChatServer.Handlers;
 
@@ -16,14 +18,17 @@ public class ClientHandler
 {
     private readonly ClientService _service;
     private readonly NetworkHelper _networkHelper;
+    private readonly IMessageBroadcaster _broadcaster;
     private readonly Logger<ClientHandler> _logger;
 
     public ClientHandler(ClientService service,
                          NetworkHelper networkHelper,
+                         IMessageBroadcaster broadcaster,
                          Logger<ClientHandler> logger)
     {
         this._service = service;
         this._networkHelper = networkHelper;
+        this._broadcaster = broadcaster;
         this._logger = logger;
     }
     
@@ -36,9 +41,7 @@ public class ClientHandler
 
         string data = JsonSerializer.Serialize(responses);
 
-        NetworkStream stream = session.TcpClient.GetStream();
-
-        await _networkHelper.WriteAsync(stream, data);
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), data);
     }
 
     public async Task GetByIdAsync(ClientSession session, Packet packet)
@@ -54,18 +57,30 @@ public class ClientHandler
             return;
         }
         
-        ClientResponse response = await _service.GetByIdAsync((int)id);
+        var (baseResponse, clientResponse) = await _service.GetByIdAsync((int)id);
 
-        if(response.Success)
-            _logger.LogInformation("The client was successfully received");
-        else
+        if(baseResponse.Success)
+        {
             _logger.LogWarning("Receipt failed");
+            
+            return;
+        }
 
-        string data = JsonSerializer.Serialize(response);
+        _logger.LogInformation("The client was successfully received");
 
-        NetworkStream stream = session.TcpClient.GetStream();
+        Packet responsePacket = new Packet
+        {
+            Type = PacketType.ClientReceived,
+            Data = JsonSerializer.SerializeToElement(new
+            {
+                BaseResponse = baseResponse,
+                ClientResponse = clientResponse
+            })
+        };
 
-        await _networkHelper.WriteAsync(stream, data);
+        string responseJson = JsonSerializer.Serialize(responsePacket);
+
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), responseJson);
     }
 
     public async Task DeleteAsync(ClientSession session, Packet packet)
@@ -87,20 +102,29 @@ public class ClientHandler
                                id); 
             return;
         }
-        
 
-        BaseResponse response = await _service.DeleteAsync((int)id);
+        var (response, _) = await _service.DeleteAsync((int)id);
 
-        if(response.Success)
-            _logger.LogInformation("The client was successfully removed.");
-        
-        else
+        if(!response.Success)
+        {
             _logger.LogWarning("Removal failed");
+            
+            return;
+        }
 
-        string data = JsonSerializer.Serialize(response);
+        Packet responsePacket = new Packet
+        {
+            Type = PacketType.ClientDeleted,
+            Data = JsonSerializer.SerializeToElement(new
+            {
+                Response = response,
+                Id = id
+            })
+        };
 
-        NetworkStream stream = session.TcpClient.GetStream();
+        string responseJson = JsonSerializer.Serialize(responsePacket);
 
-        await _networkHelper.WriteAsync(stream, data);
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), responseJson);
+        await _broadcaster.BroadcastAsync(session, responseJson);
     }
 }

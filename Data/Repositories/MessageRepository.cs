@@ -26,8 +26,14 @@ public class MessageRepository : IMessageRepository
                                         .ToListAsync();
     }
 
-    public async Task RemoveAsync(int id) 
+    public async Task<MessageEntity?> GetByIdAsync(int id)
     {
-        await _dbContext.Messages.Where(m => m.Id == id).ExecuteDeleteAsync();
+        return await _dbContext.Messages.FindAsync(id);
+    }
+
+    public async Task DeleteAsync(MessageEntity entity) 
+    {
+        _dbContext.Messages.Remove(entity);
+        await _dbContext.SaveChangesAsync();
     }
 }

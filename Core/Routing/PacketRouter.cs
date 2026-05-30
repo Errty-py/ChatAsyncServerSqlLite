@@ -60,8 +60,8 @@ public class PacketRouter
 
                 break;
 
-            case PacketType.DeleteClientById:
-                _logger.LogInformation("Routing to ClientHandler.DeleteById");
+            case PacketType.DeleteClient:
+                _logger.LogInformation("Routing to ClientHandler.DeleteAsync");
 
                 await _clientHandler.DeleteAsync(session, packet);
                 
@@ -80,6 +80,13 @@ public class PacketRouter
                 
                 await _messageHandler.GetAllAsync(session);
 
+                break;
+
+            case PacketType.DeleteMessage:
+                _logger.LogInformation("Routing to MessageHandler.DeleteAsync");
+
+                await _messageHandler.DeleteAsync(session, packet);
+                
                 break;
 
             default:

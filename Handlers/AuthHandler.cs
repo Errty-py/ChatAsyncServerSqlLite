@@ -6,6 +6,8 @@ using TcpChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.Json;
+using TcpChatServer.Contracts.Responses;
+using TcpChatServer.Abstractions.Interfaces;
 
 namespace TcpChatServer.Handlers;
 
@@ -13,14 +15,17 @@ public class AuthHandler
 {
     private readonly AuthService _authService;
     private readonly NetworkHelper _networkHelper;
+    private readonly IMessageBroadcaster _broadcaster;
     private readonly ILogger<AuthHandler> _logger;
 
     public AuthHandler(AuthService authService,
                        NetworkHelper networkHelper,
+                       IMessageBroadcaster broadcaster,
                        ILogger<AuthHandler> logger)
     {
         this._authService = authService;
         this._networkHelper = networkHelper;
+        this._broadcaster = broadcaster;
         this._logger = logger;
     }
 
@@ -37,25 +42,35 @@ public class AuthHandler
             return;
         }
 
-        var response = await _authService.RegisterAsync(request);
+        var (baseResponse, clientResponse) = await _authService.RegisterAsync(request);
 
-        if (response.Success)
-        {
-            _logger.LogInformation("User registered successfully: {Login}",
-                                   request.Login);
-        }
-        else
+        if (!baseResponse.Success)
         {
             _logger.LogWarning("Registration failed for login {Login}: {Message}",
                                request.Login,
-                               response.Message);
+                               baseResponse.Message);
+            return;
         }
 
-        string data = JsonSerializer.Serialize(response);
+        _logger.LogInformation("User registered successfully: {Login}",
+                                   request.Login);
 
-        NetworkStream stream = session.TcpClient.GetStream();
-        
-        await _networkHelper.WriteAsync(stream, data);
+        Packet baseResponsePacket = new Packet
+        {
+            Type = PacketType.ClientRegistered,
+            Data = JsonSerializer.SerializeToElement(baseResponse)
+        };
+        Packet clientResponsePacket = new Packet
+        {
+            Type = PacketType.ClientRegistered,
+            Data = JsonSerializer.SerializeToElement(clientResponse)
+        };
+
+        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
+        string clientResponseJson = JsonSerializer.Serialize(clientResponsePacket);
+
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), baseResponseJson);
+        await _broadcaster.BroadcastAsync(session, clientResponseJson);
     }
 
     public async Task LoginAsync(ClientSession session, Packet packet)
@@ -71,29 +86,37 @@ public class AuthHandler
             return;
         }
 
-        var response = await _authService.LoginAsync(request);
+        var (baseResponse, clientResponse) = await _authService.LoginAsync(request);
 
-        if (response.Success)
+        if (baseResponse.Success && clientResponse is not null)
         {
-            session.ClientId = response.Id;
-            session.Name = response.Name;
+            session.ClientId = clientResponse.Id;
+            session.Name = clientResponse.Name;
             session.IsAuthenticated = true;
 
             _logger.LogInformation("Login success: {ClientId} ({Name})",
-                                   response.Id,
-                                   response.Name);
+                                   clientResponse.Id,
+                                   clientResponse.Name);
         }
         else
         {
             _logger.LogWarning("Login failed for {Login}: {Message}",
                                request.Login,
-                               response.Message);
+                               baseResponse.Message);
         }
 
-        string data = JsonSerializer.Serialize(response);
+        Packet responsePacket = new Packet
+        {
+            Type = PacketType.ClientLogged,
+            Data = JsonSerializer.SerializeToElement(new
+            {
+                BaseResponse = baseResponse,
+                ClientResponse = clientResponse
+            })
+        };
 
-        NetworkStream stream = session.TcpClient.GetStream();
+        string responseJson = JsonSerializer.Serialize(responsePacket);
     
-        await _networkHelper.WriteAsync(stream, data);
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), responseJson);
     }
 }

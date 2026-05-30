@@ -15,17 +15,17 @@ public class AuthService
         this._repository = repository;
     }
 
-    public async Task<BaseResponse> RegisterAsync(RegisterRequest request)
+    public async Task<(BaseResponse, ClientResponse?)> RegisterAsync(RegisterRequest request)
     {
         bool exists = await _repository.ExistsByLoginAsync(request.Login);
 
         if (exists)
         {
-            return new BaseResponse
+            return (new BaseResponse
             {
                 Success = false,
                 Message = "Login already exists"
-            };
+            }, null);
         }
 
         ClientEntity client = new ClientEntity()
@@ -37,24 +37,31 @@ public class AuthService
 
         await _repository.CreateAsync(client);
 
-        return new BaseResponse
+        BaseResponse baseResponse = new BaseResponse
         {
             Success = true,
             Message = "Registered"
         };
+        ClientResponse clientResponse = new ClientResponse
+        {
+            Id = client.Id,
+            Name = client.Name
+        };
+
+        return (baseResponse, clientResponse);
     }
 
-    public async Task<ClientResponse> LoginAsync(LoginRequest request)
+    public async Task<(BaseResponse, ClientResponse?)> LoginAsync(LoginRequest request)
     {
         ClientEntity? client = await _repository.GetByLoginAsync(request.Login);
 
         if (client == null)
         {
-            return new ClientResponse
+            return (new BaseResponse
             {
                 Success = false,
                 Message = "Invalid credentials"
-            };
+            }, null);
         }
 
         bool verified = PasswordHasher.Verify(
@@ -64,19 +71,24 @@ public class AuthService
 
         if (!verified)
         {
-            return new ClientResponse
+            return (new BaseResponse
             {
                 Success = false,
                 Message = "Invalid credentials"
-            };
+            }, null);
         }
 
-        return new ClientResponse
+        BaseResponse baseResponse = new BaseResponse
         {
             Success = true,
-            Id = client.Id,
-            Name = client.Name,
             Message = "Logged in"
         };
+        ClientResponse clientResponse = new ClientResponse
+        {
+            Id = client.Id,
+            Name = client.Name
+        };
+
+        return (baseResponse, clientResponse);
     }
 }

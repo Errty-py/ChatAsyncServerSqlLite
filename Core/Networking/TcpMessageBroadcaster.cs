@@ -19,7 +19,7 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
         this._logger = logger;
     }
 
-    public async Task BroadcastAsync(string data, ClientSession sender)
+    public async Task BroadcastAsync(ClientSession sender, string data)
     {
         var sessions = _sessionManager.GetAll();
 
@@ -52,7 +52,7 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
                 errorCount++;
 
                 _logger.LogError(ex,
-                                 "Failed to send message to client {ClientId}",
+                                 "Failed to send packet to client {ClientId}",
                                  session.ClientId);
             }
         }

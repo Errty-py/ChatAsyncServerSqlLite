@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using TcpChatServer.Abstractions.Interfaces;
+﻿using TcpChatServer.Abstractions.Interfaces;
 using TcpChatServer.Contracts.Responses;
-using TcpChatServer.Core.Sessions;
 using TcpChatServer.Data.Entities;
 
 namespace TcpChatServer.Services;
@@ -30,41 +28,59 @@ public class ClientService
         return responses;
     }
 
-    public async Task<ClientResponse> GetByIdAsync(int id)
+    public async Task<(BaseResponse, ClientResponse?)> GetByIdAsync(int id)
     {
         ClientEntity? client = await _repository.GetByIdAsync(id);
         
         if (client is null)
-            return new ClientResponse
+        {
+            BaseResponse errorResponse = new BaseResponse
             {
                 Success = false,
                 Message = "Invalid credentials"
             };
 
-        return new ClientResponse 
+            return (errorResponse, null);
+        }
+
+        BaseResponse baseResponse = new BaseResponse
+        {
+            Success = true,
+            Message = "Receiving customer data was successful"
+        };
+        ClientResponse clientResponse = new ClientResponse 
         {
             Id = client.Id,
             Name = client.Name
         };
+
+
+        return (baseResponse, clientResponse);
     }
 
-    public async Task<BaseResponse> DeleteAsync(int id)
+    public async Task<(BaseResponse, int?)> DeleteAsync(int id)
     {
         ClientEntity? clientEntity = await _repository.GetByIdAsync(id);
 
         if(clientEntity is null)
-            return new BaseResponse
+        {
+            BaseResponse errorResponse = new BaseResponse
             {
                 Success = false,
                 Message = "Invalid credentials"
             };
 
+            return (errorResponse, null);
+        }
+
         await _repository.DeleteAsync(clientEntity);
 
-        return new BaseResponse
+        BaseResponse baseResponse = new BaseResponse
         {
             Success = true,
-            Message = "The client was deleted"
+            Message = "The client was deleted",
         };
+
+        return (baseResponse, id);
     }
 }

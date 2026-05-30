@@ -10,20 +10,24 @@ namespace TcpChatServer.Services;
 public class MessageService
 {
     private readonly IMessageRepository _repository;
-    private readonly IMessageBroadcaster _broadcaster;
     
-    public MessageService(IMessageRepository repository, 
-                          IMessageBroadcaster broadcaster)
+    public MessageService(IMessageRepository repository)
     {
         this._repository = repository;
-        this._broadcaster = broadcaster;
     }
 
-    public async Task SendAsync(MessageRequest request, ClientSession session)
-    {
-        if (!session.IsAuthenticated)
-            return;
-        
+    public async Task<(BaseResponse, MessageResponse?)> AddAsync(ClientSession session, MessageRequest request)
+    {   
+        if (session.ClientId != request.FromClientId)
+        {
+            BaseResponse errorResponse = new BaseResponse()
+            {
+                Success = false,
+                Message = "You cannot send messages on behalf of someone else"
+            };
+            return (errorResponse, null);
+        }
+
         MessageEntity message = new MessageEntity()
         {
             FromClientId = session.ClientId,
@@ -33,29 +37,31 @@ public class MessageService
 
         await _repository.AddAsync(message);
 
-        MessageResponse response = new MessageResponse()
+        BaseResponse baseResponse = new BaseResponse()
         {
+            Success = true,
+            Message = "Message has been added"
+        };
+        MessageResponse messageResponse = new MessageResponse()
+        {
+            Id = message.Id,
             FromClientId = message.FromClientId,
             SenderName = session.Name,
             Text = message.Text,
             CreatedAt = message.CreatedAt
         };
 
-        string data = JsonSerializer.Serialize(response);
-
-        await _broadcaster.BroadcastAsync(data, session);
+        return (baseResponse, messageResponse);
     }
 
-    public async Task<List<MessageResponse>> GetAllAsync(ClientSession session)
+    public async Task<List<MessageResponse>> GetAllAsync()
     {
-        if (!session.IsAuthenticated)
-            return [];
-
         List<MessageEntity> messages = await _repository.GetAllAsync();
 
         List<MessageResponse> responses =
             messages.Select(message => new MessageResponse
             {
+                Id = message.Id,
                 FromClientId = message.FromClientId,
                 SenderName = message.FromClient.Login,
                 Text = message.Text,
@@ -64,5 +70,32 @@ public class MessageService
             .ToList();
 
         return responses;
+    }
+
+    public async Task<BaseResponse> DeleteAsync(ClientSession session, int messageId)
+    {
+        MessageEntity? message = await _repository.GetByIdAsync(messageId);
+
+        if(message is null)
+            return new BaseResponse
+            {
+                Success = false,
+                Message = "Message not found"
+            };
+
+        if(session.ClientId != message.FromClientId)
+            return new BaseResponse
+            {
+                Success = false,
+                Message = "You cannot delete other people's messages"
+            };
+
+        await _repository.DeleteAsync(message);
+
+        return new BaseResponse
+        {
+            Success = true,
+            Message = "Message deleted"
+        };
     }
 }
