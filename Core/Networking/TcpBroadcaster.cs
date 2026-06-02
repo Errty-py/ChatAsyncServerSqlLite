@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 
 namespace TcpChatServer.Core.Networking;
 
-public class TcpMessageBroadcaster : IMessageBroadcaster
+public class TcpBroadcaster : ITcpBroadcaster
 {
     private readonly SessionManager _sessionManager;
     private readonly NetworkHelper _networkHelper;
-    private readonly ILogger<TcpMessageBroadcaster> _logger;
+    private readonly ILogger<TcpBroadcaster> _logger;
 
-    public TcpMessageBroadcaster(SessionManager sessionManager,
+    public TcpBroadcaster(SessionManager sessionManager,
                                  NetworkHelper networkHelper,
-                                 ILogger<TcpMessageBroadcaster> logger)
+                                 ILogger<TcpBroadcaster> logger)
     {
         this._sessionManager = sessionManager;
         this._networkHelper = networkHelper;
@@ -26,6 +26,9 @@ public class TcpMessageBroadcaster : IMessageBroadcaster
         int sentCount = 0;
         int skippedCount = 0;
         int errorCount = 0;
+
+        if (sessions is null)
+            return;
 
         _logger.LogInformation("Broadcast started from client {ClientId}. Target sessions: {Count}",
                                sender.ClientId,

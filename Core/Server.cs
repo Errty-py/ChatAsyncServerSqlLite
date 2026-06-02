@@ -39,55 +39,46 @@ public class Server
         _logger.LogInformation("Server started on port {Port}", _iPEndPoint.Port);
 
         
+        while (_isRunning)
+        {
+            TcpClient tcpClient =
+                await _listener.AcceptTcpClientAsync();
+
+            _ = HandleClientAsync(tcpClient);
+        }
+    }
+
+    private async Task HandleClientAsync(TcpClient tcpClient)
+    {
+        ClientSession session = new()
+        {
+            TcpClient = tcpClient
+        };
+
+        _sessionManager.Add(session);
+
+        _logger.LogInformation("Client connected from {Endpoint}",
+                               tcpClient.Client.RemoteEndPoint);
+
         try
         {
-            while(_isRunning)
-            {
-                TcpClient tcpClient = await _listener.AcceptTcpClientAsync();
+            using IServiceScope scope = _scopeFactory.CreateScope();
 
-                ClientSession session = new ClientSession()
-                {
-                    TcpClient = tcpClient
-                };
+            ConnectionHandler processor =
+                ActivatorUtilities.CreateInstance<ConnectionHandler>(
+                    scope.ServiceProvider,
+                    session);
 
-                _sessionManager.Add(session);
-                
-                _logger.LogInformation("Client connected from {Endpoint}",
-                                       tcpClient.Client.RemoteEndPoint);
-
-                _ = Task.Run(async () =>
-                {
-                    using IServiceScope scope = _scopeFactory.CreateScope();
-
-                    var router = scope.ServiceProvider.GetRequiredService<PacketRouter>();
-                    var networkHelper = scope.ServiceProvider.GetRequiredService<NetworkHelper>();
-
-                    var handler = new ConnectionHandler(session, router, networkHelper);
-
-                    try
-                    {
-                        await handler.HandleAsync();
-                    }
-                    finally
-                    {
-                        _sessionManager.Remove(session.SessionId);
-                        tcpClient.Close();
-                        _logger.LogInformation("Client disconnected {ClientId}",
-                                               session.ClientId);
-                    }
-                });
-            }
+            await processor.HandleAsync();
         }
-        catch (SocketException)
+        finally
         {
-            if (_isRunning)
-            {
-                _logger.LogError("Unexpected socket error");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Server ERROR");
+            _sessionManager.Remove(session.SessionId);
+
+            tcpClient.Close();
+
+            _logger.LogInformation("Client disconnected {ClientId}",
+                                   session.ClientId);
         }
     }
 
@@ -97,7 +88,12 @@ public class Server
 
         _listener.Stop();
 
-        foreach (ClientSession session in _sessionManager.GetAll())
+        var sessions = _sessionManager.GetAll();
+
+        if(sessions is null)
+            return;
+
+        foreach (ClientSession session in sessions)
         {
             session.TcpClient.Close();
         }

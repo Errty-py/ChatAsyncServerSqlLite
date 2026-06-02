@@ -16,12 +16,12 @@ public class MessageHandler
 {
     private readonly MessageService _service;
     private readonly NetworkHelper _networkHelper;
-    private readonly IMessageBroadcaster _broadcaster;
+    private readonly ITcpBroadcaster _broadcaster;
     private readonly ILogger<MessageHandler> _logger;
 
     public MessageHandler(MessageService messageService,
                           NetworkHelper networkHelper,
-                          IMessageBroadcaster broadcaster, 
+                          ITcpBroadcaster broadcaster, 
                           ILogger<MessageHandler> logger)
     {
         this._service = messageService;

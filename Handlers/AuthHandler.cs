@@ -15,12 +15,12 @@ public class AuthHandler
 {
     private readonly AuthService _authService;
     private readonly NetworkHelper _networkHelper;
-    private readonly IMessageBroadcaster _broadcaster;
+    private readonly ITcpBroadcaster _broadcaster;
     private readonly ILogger<AuthHandler> _logger;
 
     public AuthHandler(AuthService authService,
                        NetworkHelper networkHelper,
-                       IMessageBroadcaster broadcaster,
+                       ITcpBroadcaster broadcaster,
                        ILogger<AuthHandler> logger)
     {
         this._authService = authService;
@@ -44,6 +44,16 @@ public class AuthHandler
 
         var (baseResponse, clientResponse) = await _authService.RegisterAsync(request);
 
+        Packet baseResponsePacket = new Packet
+        {
+            Type = PacketType.ClientRegistered,
+            Data = JsonSerializer.SerializeToElement(baseResponse)
+        };
+
+        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
+
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), baseResponseJson);
+
         if (!baseResponse.Success)
         {
             _logger.LogWarning("Registration failed for login {Login}: {Message}",
@@ -55,21 +65,14 @@ public class AuthHandler
         _logger.LogInformation("User registered successfully: {Login}",
                                    request.Login);
 
-        Packet baseResponsePacket = new Packet
-        {
-            Type = PacketType.ClientRegistered,
-            Data = JsonSerializer.SerializeToElement(baseResponse)
-        };
         Packet clientResponsePacket = new Packet
         {
             Type = PacketType.ClientRegistered,
             Data = JsonSerializer.SerializeToElement(clientResponse)
         };
-
-        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
+        
         string clientResponseJson = JsonSerializer.Serialize(clientResponsePacket);
-
-        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), baseResponseJson);
+        
         await _broadcaster.BroadcastAsync(session, clientResponseJson);
     }
 

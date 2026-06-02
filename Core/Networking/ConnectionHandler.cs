@@ -13,21 +13,24 @@ public class ConnectionHandler
     private readonly ClientSession _session;
     private readonly PacketRouter _router;
     private readonly NetworkHelper _networkHelper;
+    private readonly ILogger<ConnectionHandler> _logger;
 
     public ConnectionHandler(ClientSession session,
                              PacketRouter router,
-                             NetworkHelper networkHelper)
+                             NetworkHelper networkHelper,
+                             ILogger<ConnectionHandler> logger)
     {
-        this._session = session;
-        this._router = router;
-        this._networkHelper = networkHelper;
+        _session = session;
+        _router = router;
+        _networkHelper = networkHelper;
+        _logger = logger;
     }
 
     public async Task HandleAsync()
     {
         try
         {
-            NetworkStream stream = _session.TcpClient.GetStream();
+            var stream = _session.TcpClient.GetStream();
 
             while (true)
             {
@@ -39,14 +42,21 @@ public class ConnectionHandler
                 Packet? packet = JsonSerializer.Deserialize<Packet>(json);
 
                 if (packet is null)
+                {
+                    _logger.LogWarning("Failed to deserialize packet from client {ClientId}",
+                                       _session.ClientId);
+
                     continue;
+                }
 
                 await _router.RouteAsync(_session, packet);
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            _logger.LogError(ex,
+                             "Error while processing client {ClientId}",
+                             _session.ClientId);
         }
         finally
         {

@@ -41,15 +41,11 @@ public class SessionManager
         }
     }
 
-    public IReadOnlyCollection<ClientSession> GetAll()
+    public IReadOnlyCollection<ClientSession>? GetAll()
     {
+        if(_sessions.IsEmpty)
+            return null;
+        
         return _sessions.Values.ToList();
-    }
-
-    public ClientSession? GetBySessionId(Guid sessionId)
-    {
-        _sessions.TryGetValue(sessionId, out var session);
-
-        return session;
     }
 }

@@ -54,7 +54,7 @@ builder.Services.AddSingleton<Server>(provider =>
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
-builder.Services.AddSingleton<IMessageBroadcaster, TcpMessageBroadcaster>();
+builder.Services.AddSingleton<ITcpBroadcaster, TcpBroadcaster>();
 builder.Services.AddSingleton<NetworkHelper>();
 builder.Services.AddSingleton<SessionManager>();
 
@@ -62,6 +62,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ClientService>();
 
+builder.Services.AddScoped<ClientHandler>();
 builder.Services.AddScoped<AuthHandler>();
 builder.Services.AddScoped<MessageHandler>();
 builder.Services.AddScoped<PacketRouter>();

@@ -1,10 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text;
+
 namespace TcpChatServer.Core.Networking;
 
 public class NetworkHelper
 {
+    private const int MaxPacketSize = 1024 * 1024;
+
     private readonly ILogger<NetworkHelper> _logger;
 
     public NetworkHelper(ILogger<NetworkHelper> logger)
@@ -12,9 +15,8 @@ public class NetworkHelper
         _logger = logger;
     }
 
-    public async Task WriteAsync(
-        NetworkStream stream,
-        string json)
+    public async Task WriteAsync(NetworkStream stream,
+                                 string json)
     {
         try
         {
@@ -25,12 +27,16 @@ public class NetworkHelper
             await stream.WriteAsync(length);
             await stream.WriteAsync(data);
 
-            _logger.LogDebug("Received packet {Length} bytes",
-                             length);
+            _logger.LogDebug("Sent packet ({Length} bytes)",
+                             data.Length);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send packet");
+            _logger.LogError(
+                ex,
+                "Failed to send packet");
+
+            throw;
         }
     }
 
@@ -38,42 +44,41 @@ public class NetworkHelper
     {
         try
         {
-            byte[] lengthBuffer = new byte[4];
+            byte[] lengthBuffer = new byte[sizeof(int)];
 
-            int read = await stream.ReadAsync(lengthBuffer);
-
-            if (read == 0)
-            {
-                _logger.LogWarning("Stream closed while reading length prefix");
-                return null;
-            }
+            await stream.ReadExactlyAsync(lengthBuffer);
 
             int length = BitConverter.ToInt32(lengthBuffer);
 
+            if (length <= 0 || length > MaxPacketSize)
+            {
+                _logger.LogWarning("Invalid packet size: {Length}",
+                                   length);
+
+                return null;
+            }
+
             byte[] data = new byte[length];
 
-            int totalRead = 0;
+            await stream.ReadExactlyAsync(data);
 
-            while (totalRead < length)
-            {
-                int currentRead =
-                    await stream.ReadAsync(
-                        data.AsMemory(totalRead,
-                                      length - totalRead));
+            _logger.LogDebug("Received packet ({Length} bytes)",
+                             length);
 
-                if (currentRead == 0)
-                    return null;
-
-                totalRead += currentRead;
-            }
-            
             return Encoding.UTF8.GetString(data);
         }
-        catch(Exception ex)
+        catch (EndOfStreamException)
         {
-            _logger.LogError(ex, "Failed to read packet");
-            
-            return null;           
+            _logger.LogInformation("Client disconnected");
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                             "Failed to read packet");
+
+            return null;
         }
     }
 }

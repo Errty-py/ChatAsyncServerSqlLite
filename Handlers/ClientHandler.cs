@@ -18,13 +18,13 @@ public class ClientHandler
 {
     private readonly ClientService _service;
     private readonly NetworkHelper _networkHelper;
-    private readonly IMessageBroadcaster _broadcaster;
-    private readonly Logger<ClientHandler> _logger;
+    private readonly ITcpBroadcaster _broadcaster;
+    private readonly ILogger<ClientHandler> _logger;
 
     public ClientHandler(ClientService service,
                          NetworkHelper networkHelper,
-                         IMessageBroadcaster broadcaster,
-                         Logger<ClientHandler> logger)
+                         ITcpBroadcaster broadcaster,
+                         ILogger<ClientHandler> logger)
     {
         this._service = service;
         this._networkHelper = networkHelper;
