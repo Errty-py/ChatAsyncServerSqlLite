@@ -40,6 +40,13 @@ public class ClientRepository : IClientRepository
         return await _dbContext.Clients.AnyAsync(c => c.Login == login);
     }
 
+    public async Task UpdateAsync(ClientEntity client)
+    {
+        _dbContext.Clients.Update(client);
+
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task DeleteAsync(ClientEntity clientEntity) 
     {
         _dbContext.Clients.Remove(clientEntity);

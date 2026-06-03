@@ -1,4 +1,5 @@
 ﻿using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Contracts.Requests;
 using TcpChatServer.Contracts.Responses;
 using TcpChatServer.Data.Entities;
 
@@ -21,7 +22,8 @@ public class ClientService
             clients.Select(client => new ClientResponse
             {
                 Id = client.Id,
-                Name = client.Name
+                Name = client.Name,
+                Avatar = client.Avatar
             })
             .ToList();
 
@@ -51,11 +53,60 @@ public class ClientService
         ClientResponse clientResponse = new ClientResponse 
         {
             Id = client.Id,
-            Name = client.Name
+            Name = client.Name,
+            Avatar = client.Avatar
         };
 
 
         return (baseResponse, clientResponse);
+    }
+
+    public async Task<(BaseResponse, ClientProfileResponse?)> UpdateAsync(int id, UpdateClientRequest request)
+    {
+        ClientEntity? client = await _repository.GetByIdAsync(id);
+
+        if (client is null)
+        {
+            return (new BaseResponse
+            {
+                Success = false,
+                Message = "Client not found"
+            }, null);
+        }
+
+        client.Name = request.Name;
+        client.Login = request.Login;
+
+        if (request.Avatar is not null)
+        {
+            if (request.Avatar.Length > 1024 * 1024 * 8)
+            {
+                return (new BaseResponse
+                {
+                    Success = false,
+                    Message = "Avatar too large (max 8MB)"
+                }, null);
+            }
+
+            client.Avatar = request.Avatar;
+        }
+
+        await _repository.UpdateAsync(client);
+
+        BaseResponse baseResponse = new BaseResponse
+        {
+            Success = true,
+            Message = "Client updated"
+        };
+        ClientProfileResponse clientProfileResponse = new ClientProfileResponse
+        {
+            Id = client.Id,
+            Name = client.Name,
+            Login = client.Login,
+            Avatar = client.Avatar
+        };
+
+        return (baseResponse, clientProfileResponse);
     }
 
     public async Task<(BaseResponse, int?)> DeleteAsync(int id)

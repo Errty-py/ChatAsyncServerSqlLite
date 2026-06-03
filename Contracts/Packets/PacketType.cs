@@ -10,8 +10,8 @@ public enum PacketType
 
     GetAllClients,
     GetClientById,
+    UpdateClient,
     DeleteClient,
-
 
     SendMessage,
     GetAllMessages,
@@ -20,6 +20,7 @@ public enum PacketType
     ClientLogged,
     ClientRegistered,
     ClientReceived,
+    ClientUpdated,
     ClientDeleted,
 
     MessageReceived,

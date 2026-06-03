@@ -11,6 +11,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<MessageEntity>
         entity.HasKey(m => m.Id);
 
         entity.Property(m => m.Text)
+              .HasMaxLength(500)
               .IsRequired();
 
         entity.Property(m => m.CreatedAt)

@@ -23,5 +23,8 @@ public class ClientConfiguration : IEntityTypeConfiguration<ClientEntity>
 
         entity.Property(c => c.PasswordHash)
               .IsRequired();
+
+        entity.Property(c => c.Avatar)
+              .IsRequired(false);
     }
 }

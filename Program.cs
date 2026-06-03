@@ -1,4 +1,5 @@
 ﻿using TcpChatServer.Abstractions.Interfaces;
+using TcpChatServer.Core.Configurations;
 using TcpChatServer.Core.Networking;
 using TcpChatServer.Core.Sessions;
 using TcpChatServer.Core;
@@ -17,15 +18,14 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 
 using Serilog;
+using Microsoft.Extensions.Options;
 
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 
-IConfigurationSection serverSection = builder.Configuration.GetSection("Server");
+builder.Services.Configure<ServerSettings>(builder.Configuration.GetSection("Server"));
 
-string ip = serverSection["Ip"] ?? "0.0.0.0";
-
-int port = int.Parse(serverSection["Port"] ?? "7000");
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -37,19 +37,27 @@ Log.Logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
-builder.Services.AddDbContext<AppDbContext>(options => 
+builder.Services.AddDbContext<AppDbContext>((provider, options) =>
 {
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("Default"));
+    DatabaseSettings databaseSettings = provider.GetRequiredService<IOptions<DatabaseSettings>>()
+                                                .Value;
+
+    options.UseNpgsql(databaseSettings.ConnectionString);
 });
 
 builder.Services.AddSingleton<Server>(provider =>
-    {
-        return new Server(new IPEndPoint(IPAddress.Parse(ip), port),
-                          provider.GetRequiredService<SessionManager>(),
-                          provider.GetRequiredService<IServiceScopeFactory>(),
-                          provider.GetRequiredService<ILogger<Server>>());
-    });
+{
+    ServerSettings serverSettings = provider.GetRequiredService<IOptions<ServerSettings>>()
+                                            .Value;
+
+    IPEndPoint endPoint = new(IPAddress.Parse(serverSettings.Ip),
+                              serverSettings.Port);
+
+    return new Server(endPoint,
+                      provider.GetRequiredService<SessionManager>(),
+                      provider.GetRequiredService<IServiceScopeFactory>(),
+                      provider.GetRequiredService<ILogger<Server>>());
+});
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
@@ -69,7 +77,7 @@ builder.Services.AddScoped<PacketRouter>();
 
 IHost host = builder.Build();
 
-var server = host.Services.GetRequiredService<Server>();
+Server server = host.Services.GetRequiredService<Server>();
 
 _ = Task.Run(async () =>
 {

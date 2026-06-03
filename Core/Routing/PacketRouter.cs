@@ -60,6 +60,13 @@ public class PacketRouter
 
                 break;
 
+            case PacketType.UpdateClient:
+                _logger.LogInformation("Routing to ClientHandler.UpdateClient");
+
+                await _clientHandler.UpdateAsync(session, packet);
+                
+                break;
+
             case PacketType.DeleteClient:
                 _logger.LogInformation("Routing to ClientHandler.DeleteAsync");
 
