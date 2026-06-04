@@ -1,9 +1,9 @@
-﻿using TcpChatServer.Handlers;
-using TcpChatServer.Contracts.Packets;
-using TcpChatServer.Core.Sessions;
+﻿using SpaceChatServer.Handlers;
+using SpaceChatServer.Contracts.Packets;
+using SpaceChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 
-namespace TcpChatServer.Routing;
+namespace SpaceChatServer.Routing;
 
 public class PacketRouter
 {

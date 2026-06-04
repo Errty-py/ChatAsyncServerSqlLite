@@ -1,6 +1,6 @@
-﻿using TcpChatServer.Data.Entities;
+﻿using SpaceChatServer.Data.Entities;
 
-namespace TcpChatServer.Abstractions.Interfaces;
+namespace SpaceChatServer.Abstractions.Interfaces;
 
 public interface IMessageRepository
 {

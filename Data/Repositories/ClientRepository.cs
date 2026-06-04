@@ -1,8 +1,8 @@
-﻿using TcpChatServer.Abstractions.Interfaces;
-using TcpChatServer.Data.Entities;
+﻿using SpaceChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace TcpChatServer.Data.Repositories;
+namespace SpaceChatServer.Data.Repositories;
 
 public class ClientRepository : IClientRepository
 {

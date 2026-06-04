@@ -1,4 +1,4 @@
-namespace TcpChatServer.Contracts.Requests;
+namespace SpaceChatServer.Contracts.Requests;
 
 public class UpdateClientRequest
 {

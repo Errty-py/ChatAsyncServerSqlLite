@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 
-namespace TcpChatServer.Core.Sessions;
+namespace SpaceChatServer.Core.Sessions;
 
 public class SessionManager
 {

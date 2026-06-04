@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TcpChatServer.Data;
+using SpaceChatServer.Data;
 
 #nullable disable
 
-namespace TcpChatServer.Migrations
+namespace SpaceChatServer.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604130118_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace TcpChatServer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TcpChatServer.Data.Entities.ClientEntity", b =>
+            modelBuilder.Entity("SpaceChatServer.Data.Entities.ClientEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,7 +58,7 @@ namespace TcpChatServer.Migrations
                     b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("TcpChatServer.Data.Entities.MessageEntity", b =>
+            modelBuilder.Entity("SpaceChatServer.Data.Entities.MessageEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -81,9 +84,9 @@ namespace TcpChatServer.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("TcpChatServer.Data.Entities.MessageEntity", b =>
+            modelBuilder.Entity("SpaceChatServer.Data.Entities.MessageEntity", b =>
                 {
-                    b.HasOne("TcpChatServer.Data.Entities.ClientEntity", "FromClient")
+                    b.HasOne("SpaceChatServer.Data.Entities.ClientEntity", "FromClient")
                         .WithMany()
                         .HasForeignKey("FromClientId")
                         .OnDelete(DeleteBehavior.Cascade)

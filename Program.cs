@@ -1,17 +1,16 @@
-﻿using TcpChatServer.Abstractions.Interfaces;
-using TcpChatServer.Core.Configurations;
-using TcpChatServer.Core.Networking;
-using TcpChatServer.Core.Sessions;
-using TcpChatServer.Core;
-using TcpChatServer.Data;
-using TcpChatServer.Data.Repositories;
-using TcpChatServer.Handlers;
-using TcpChatServer.Routing;
-using TcpChatServer.Services;
+﻿using SpaceChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Core.Configurations;
+using SpaceChatServer.Core.Networking;
+using SpaceChatServer.Core.Sessions;
+using SpaceChatServer.Core;
+using SpaceChatServer.Data;
+using SpaceChatServer.Data.Repositories;
+using SpaceChatServer.Handlers;
+using SpaceChatServer.Routing;
+using SpaceChatServer.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

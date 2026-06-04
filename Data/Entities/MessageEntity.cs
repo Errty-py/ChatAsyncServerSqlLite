@@ -1,4 +1,4 @@
-﻿namespace TcpChatServer.Data.Entities;
+﻿namespace SpaceChatServer.Data.Entities;
 
 public class MessageEntity
 {

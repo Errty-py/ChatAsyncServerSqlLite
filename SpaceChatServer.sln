@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.37012.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpChatServer", "TcpChatServer.csproj", "{299B8A03-383B-46EB-B03C-F74A50BBC365}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceChatServer", "SpaceChatServer.csproj", "{299B8A03-383B-46EB-B03C-F74A50BBC365}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

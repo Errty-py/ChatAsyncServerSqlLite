@@ -1,4 +1,4 @@
-﻿namespace TcpChatServer.Contracts.Responses;
+﻿namespace SpaceChatServer.Contracts.Responses;
 
 public class ClientResponse
 {

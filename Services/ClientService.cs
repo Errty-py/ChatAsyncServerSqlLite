@@ -1,9 +1,9 @@
-﻿using TcpChatServer.Abstractions.Interfaces;
-using TcpChatServer.Contracts.Requests;
-using TcpChatServer.Contracts.Responses;
-using TcpChatServer.Data.Entities;
+﻿using SpaceChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Contracts.Requests;
+using SpaceChatServer.Contracts.Responses;
+using SpaceChatServer.Data.Entities;
 
-namespace TcpChatServer.Services;
+namespace SpaceChatServer.Services;
 
 public class ClientService
 {

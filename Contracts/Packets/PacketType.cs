@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TcpChatServer.Contracts.Packets;
+namespace SpaceChatServer.Contracts.Packets;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PacketType

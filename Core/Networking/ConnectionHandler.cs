@@ -1,12 +1,12 @@
-using TcpChatServer.Core.Networking;
-using TcpChatServer.Routing;
-using TcpChatServer.Core.Sessions;
-using TcpChatServer.Contracts.Packets;
+using SpaceChatServer.Core.Networking;
+using SpaceChatServer.Routing;
+using SpaceChatServer.Core.Sessions;
+using SpaceChatServer.Contracts.Packets;
 using System.Net.Sockets;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-namespace TcpChatServer.Handlers;
+namespace SpaceChatServer.Handlers;
 
 public class ConnectionHandler
 {

@@ -1,7 +1,7 @@
-﻿using TcpChatServer.Data.Entities;
+﻿using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace TcpChatServer.Data;
+namespace SpaceChatServer.Data;
 
 public class AppDbContext : DbContext
 {

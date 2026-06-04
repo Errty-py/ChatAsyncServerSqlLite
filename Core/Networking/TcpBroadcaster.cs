@@ -1,8 +1,8 @@
-using TcpChatServer.Abstractions.Interfaces;
-using TcpChatServer.Core.Sessions;
+using SpaceChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 
-namespace TcpChatServer.Core.Networking;
+namespace SpaceChatServer.Core.Networking;
 
 public class TcpBroadcaster : ITcpBroadcaster
 {

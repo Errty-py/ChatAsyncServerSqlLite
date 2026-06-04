@@ -1,11 +1,10 @@
-﻿using TcpChatServer.Abstractions.Interfaces;
-using TcpChatServer.Contracts.Requests;
-using TcpChatServer.Contracts.Responses;
-using TcpChatServer.Core.Sessions;
-using TcpChatServer.Data.Entities;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
-namespace TcpChatServer.Services;
+﻿using SpaceChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Contracts.Requests;
+using SpaceChatServer.Contracts.Responses;
+using SpaceChatServer.Core.Sessions;
+using SpaceChatServer.Data.Entities;
+
+namespace SpaceChatServer.Services;
 
 public class MessageService
 {

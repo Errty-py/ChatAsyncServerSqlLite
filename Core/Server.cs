@@ -1,13 +1,13 @@
-﻿using TcpChatServer.Core.Networking;
-using TcpChatServer.Handlers;
-using TcpChatServer.Routing;
-using TcpChatServer.Core.Sessions;
+﻿using SpaceChatServer.Core.Networking;
+using SpaceChatServer.Handlers;
+using SpaceChatServer.Routing;
+using SpaceChatServer.Core.Sessions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Net;
 
-namespace TcpChatServer.Core;
+namespace SpaceChatServer.Core;
 
 public class Server
 {

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace TcpChatServer.Core.Networking;
+namespace SpaceChatServer.Core.Networking;
 
 public class NetworkHelper
 {

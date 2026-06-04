@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace TcpChatServer.Core.Security;
+namespace SpaceChatServer.Core.Security;
 
 public static class PasswordHasher
 {

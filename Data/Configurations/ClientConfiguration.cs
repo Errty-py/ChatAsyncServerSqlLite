@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TcpChatServer.Data.Entities;
+using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace TcpChatServer.Data.Configurations;
+namespace SpaceChatServer.Data.Configurations;
 
 public class ClientConfiguration : IEntityTypeConfiguration<ClientEntity>
 {

@@ -1,4 +1,4 @@
-namespace TcpChatServer.Core.Configurations;
+namespace SpaceChatServer.Core.Configurations;
 
 public class ServerSettings
 {

@@ -1,18 +1,18 @@
-﻿using TcpChatServer.Core.Networking;
-using TcpChatServer.Routing;
-using TcpChatServer.Core.Sessions;
-using TcpChatServer.Contracts.Packets;
+﻿using SpaceChatServer.Core.Networking;
+using SpaceChatServer.Routing;
+using SpaceChatServer.Core.Sessions;
+using SpaceChatServer.Contracts.Packets;
 using System.Net.Sockets;
 using System.Text.Json;
-using TcpChatServer.Contracts.Requests;
+using SpaceChatServer.Contracts.Requests;
 using Microsoft.Extensions.Logging;
-using TcpChatServer.Contracts.Responses;
-using TcpChatServer.Services;
+using SpaceChatServer.Contracts.Responses;
+using SpaceChatServer.Services;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.AspNetCore.Mvc;
-using TcpChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Abstractions.Interfaces;
 
-namespace TcpChatServer.Handlers;
+namespace SpaceChatServer.Handlers;
 
 public class ClientHandler
 {

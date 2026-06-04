@@ -1,15 +1,15 @@
-﻿using TcpChatServer.Contracts.Packets;
-using TcpChatServer.Contracts.Requests;
-using TcpChatServer.Services;
-using TcpChatServer.Core.Networking;
-using TcpChatServer.Core.Sessions;
+﻿using SpaceChatServer.Contracts.Packets;
+using SpaceChatServer.Contracts.Requests;
+using SpaceChatServer.Services;
+using SpaceChatServer.Core.Networking;
+using SpaceChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.Json;
-using TcpChatServer.Contracts.Responses;
-using TcpChatServer.Abstractions.Interfaces;
+using SpaceChatServer.Contracts.Responses;
+using SpaceChatServer.Abstractions.Interfaces;
 
-namespace TcpChatServer.Handlers;
+namespace SpaceChatServer.Handlers;
 
 public class AuthHandler
 {

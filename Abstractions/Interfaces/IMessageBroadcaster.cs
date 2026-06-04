@@ -1,6 +1,6 @@
-using TcpChatServer.Core.Sessions;
+using SpaceChatServer.Core.Sessions;
 
-namespace TcpChatServer.Abstractions.Interfaces;
+namespace SpaceChatServer.Abstractions.Interfaces;
 
 public interface ITcpBroadcaster
 {

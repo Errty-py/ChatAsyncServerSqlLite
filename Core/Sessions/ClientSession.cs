@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace TcpChatServer.Core.Sessions;
+namespace SpaceChatServer.Core.Sessions;
 
 public class ClientSession
 {
