@@ -1,6 +1,4 @@
-﻿using SpaceChatServer.Core.Networking;
-using SpaceChatServer.Handlers;
-using SpaceChatServer.Routing;
+﻿using SpaceChatServer.Handlers;
 using SpaceChatServer.Core.Sessions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -74,7 +72,9 @@ public class Server
         finally
         {
             _sessionManager.Remove(session.SessionId);
-
+            
+            session.TcpClient.Dispose();
+            
             tcpClient.Close();
 
             _logger.LogInformation("Client disconnected {ClientId}",

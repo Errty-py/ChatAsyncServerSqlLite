@@ -4,7 +4,6 @@ using SpaceChatServer.Services;
 using SpaceChatServer.Core.Networking;
 using SpaceChatServer.Core.Sessions;
 using Microsoft.Extensions.Logging;
-using System.Net.Sockets;
 using System.Text.Json;
 using SpaceChatServer.Contracts.Responses;
 using SpaceChatServer.Abstractions.Interfaces;
@@ -91,23 +90,6 @@ public class AuthHandler
 
         var (baseResponse, clientResponse) = await _authService.LoginAsync(request);
 
-        if (baseResponse.Success && clientResponse is not null)
-        {
-            session.ClientId = clientResponse.Id;
-            session.Name = clientResponse.Name;
-            session.IsAuthenticated = true;
-
-            _logger.LogInformation("Login success: {ClientId} ({Name})",
-                                   clientResponse.Id,
-                                   clientResponse.Name);
-        }
-        else
-        {
-            _logger.LogWarning("Login failed for {Login}: {Message}",
-                               request.Login,
-                               baseResponse.Message);
-        }
-
         Packet responsePacket = new Packet
         {
             Type = PacketType.ClientLogged,
@@ -121,5 +103,36 @@ public class AuthHandler
         string responseJson = JsonSerializer.Serialize(responsePacket);
     
         await _networkHelper.WriteAsync(session.TcpClient.GetStream(), responseJson);
+        
+        if (!baseResponse.Success && clientResponse is null)
+        {    
+            _logger.LogWarning("Login failed for {Login}: {Message}",
+                               request.Login,
+                               baseResponse.Message);
+
+            return;
+        }
+        
+        _logger.LogInformation("Login success: {ClientId} ({Name})",
+                               clientResponse.Id,
+                               clientResponse.Name);
+
+        session.ClientId = clientResponse.Id;
+        session.Name = clientResponse.Name;
+        session.IsAuthenticated = true;
+
+        ClientStatusResponse statusResponse = new()
+        {
+            ClientId = session.ClientId,
+            IsOnline = true
+        };
+        
+        Packet broadcastPacket = new()
+        {
+            Type = PacketType.ClientStatusChanged,
+            Data = JsonSerializer.SerializeToElement(statusResponse)
+        };
+
+        await _broadcaster.BroadcastAsync(session, JsonSerializer.Serialize(broadcastPacket));
     }
 }

@@ -96,7 +96,7 @@ public class ClientHandler
             return;
         }
 
-        var (response, profile) = await _service.UpdateAsync(session.ClientId, request);
+        var (baseResponse, profile) = await _service.UpdateAsync(session.ClientId, request);
 
         var stream = session.TcpClient.GetStream();
 
@@ -105,14 +105,14 @@ public class ClientHandler
             Type = PacketType.ClientUpdated,
             Data = JsonSerializer.SerializeToElement(new
             {
-                response,
+                baseResponse,
                 profile
             })
         };
 
         await _networkHelper.WriteAsync(stream, JsonSerializer.Serialize(responsePacket));
 
-        if (!response.Success || profile is null)
+        if (!baseResponse.Success || profile is null)
             return;
 
         Packet broadcastPacket = new()

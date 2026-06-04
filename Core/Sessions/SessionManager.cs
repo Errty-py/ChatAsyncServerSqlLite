@@ -27,11 +27,23 @@ public class SessionManager
         }
     }
 
+    public IReadOnlyCollection<ClientSession>? GetAll()
+    {
+        if(_sessions.IsEmpty)
+            return null;
+        
+        return _sessions.Values.ToList();
+    }
+
+    public bool IsOnline(int clientId)
+    {
+        return _sessions.Values.Any(session => session.ClientId == clientId);
+    }
+
     public void Remove(Guid sessionId)
     {
-        bool removed = _sessions.TryRemove(
-            sessionId,
-            out _);
+        bool removed = _sessions.TryRemove(sessionId,
+                                           out _);
 
         if (removed)
         {
@@ -39,13 +51,5 @@ public class SessionManager
                                    sessionId,
                                    _sessions.Count);
         }
-    }
-
-    public IReadOnlyCollection<ClientSession>? GetAll()
-    {
-        if(_sessions.IsEmpty)
-            return null;
-        
-        return _sessions.Values.ToList();
     }
 }

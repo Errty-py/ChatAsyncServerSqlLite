@@ -1,6 +1,7 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
 using SpaceChatServer.Contracts.Requests;
 using SpaceChatServer.Contracts.Responses;
+using SpaceChatServer.Core.Sessions;
 using SpaceChatServer.Data.Entities;
 
 namespace SpaceChatServer.Services;
@@ -8,10 +9,13 @@ namespace SpaceChatServer.Services;
 public class ClientService
 {
     private readonly IClientRepository _repository;
+    private readonly SessionManager _sessionManager;
 
-    public ClientService(IClientRepository repository)
+    public ClientService(IClientRepository repository,
+                         SessionManager sessionManager)
     {
         this._repository = repository;
+        this._sessionManager = sessionManager;
     }
     
     public async Task<List<ClientResponse>> GetAllAsync()
@@ -23,7 +27,8 @@ public class ClientService
             {
                 Id = client.Id,
                 Name = client.Name,
-                Avatar = client.Avatar
+                Avatar = client.Avatar,
+                IsOnline = _sessionManager.IsOnline(client.Id)
             })
             .ToList();
 
@@ -54,7 +59,8 @@ public class ClientService
         {
             Id = client.Id,
             Name = client.Name,
-            Avatar = client.Avatar
+            Avatar = client.Avatar,
+            IsOnline = _sessionManager.IsOnline(client.Id)
         };
 
 

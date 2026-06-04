@@ -20,6 +20,7 @@ public enum PacketType
     ClientLogged,
     ClientRegistered,
     ClientReceived,
+    ClientStatusChanged,
     ClientUpdated,
     ClientDeleted,
 
