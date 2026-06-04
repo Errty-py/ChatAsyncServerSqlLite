@@ -79,10 +79,7 @@ IHost host = builder.Build();
 
 Server server = host.Services.GetRequiredService<Server>();
 
-_ = Task.Run(async () =>
-{
-    await server.StartAsync();    
-});
+_ = server.StartAsync();
 
 Console.ReadLine();
 
