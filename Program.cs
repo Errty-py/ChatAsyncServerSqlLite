@@ -29,7 +29,7 @@ builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("D
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
-    .WriteTo.File("logs/log-.txt",
+    .WriteTo.File("Logs/Log-.txt",
                   rollingInterval: RollingInterval.Day)
     .CreateLogger();
 

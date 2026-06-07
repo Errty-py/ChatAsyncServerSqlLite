@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+
+**/.vs/
+**/.idea/
+**/.vscode/
+
+.git/
+.gitignore
+
+**/Logs/
+*.log
+*.txt
