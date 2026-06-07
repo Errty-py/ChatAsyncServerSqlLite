@@ -1,15 +1,11 @@
 ﻿using SpaceChatServer.Core.Networking;
-using SpaceChatServer.Routing;
 using SpaceChatServer.Core.Sessions;
 using SpaceChatServer.Contracts.Packets;
-using System.Net.Sockets;
 using System.Text.Json;
 using SpaceChatServer.Contracts.Requests;
 using Microsoft.Extensions.Logging;
 using SpaceChatServer.Contracts.Responses;
 using SpaceChatServer.Services;
-using Microsoft.EntityFrameworkCore.Storage.Json;
-using Microsoft.AspNetCore.Mvc;
 using SpaceChatServer.Abstractions.Interfaces;
 
 namespace SpaceChatServer.Handlers;

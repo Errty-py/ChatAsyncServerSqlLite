@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:17
+
+    container_name: spacechat-postgres
+
+    environment:
+      POSTGRES_DB: tcpchat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  server:
+    build: .
+
+    container_name: spacechat-server
+
+    depends_on:
+      - postgres
+
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:

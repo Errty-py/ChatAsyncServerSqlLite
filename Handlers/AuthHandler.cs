@@ -114,7 +114,7 @@ public class AuthHandler
         }
         
         _logger.LogInformation("Login success: {ClientId} ({Name})",
-                               clientResponse.Id,
+                               clientResponse!.Id,
                                clientResponse.Name);
 
         session.ClientId = clientResponse.Id;

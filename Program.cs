@@ -76,6 +76,13 @@ builder.Services.AddScoped<PacketRouter>();
 
 IHost host = builder.Build();
 
+using (IServiceScope scope = host.Services.CreateAsyncScope())
+{
+    AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();    
+
+    await dbContext.Database.MigrateAsync();
+}
+
 Server server = host.Services.GetRequiredService<Server>();
 
 _ = server.StartAsync();
