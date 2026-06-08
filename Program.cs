@@ -85,10 +85,15 @@ using (IServiceScope scope = host.Services.CreateAsyncScope())
 
 Server server = host.Services.GetRequiredService<Server>();
 
-_ = server.StartAsync();
+try
+{
+    await server.StartAsync();
 
-Console.ReadLine();
-
-await server.StopAsync();
+    await Task.Delay(Timeout.Infinite);
+}
+finally
+{
+    await server.StopAsync();
+}
 
 Log.CloseAndFlush();
