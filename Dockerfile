@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY SpaceChatServer.csproj ./
 
-RUN dotnet restore SpaceChatServer.csproj \
-    --source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json
+RUN dotnet restore SpaceChatServer.csproj
 
 COPY . .
 
@@ -20,14 +19,6 @@ FROM mcr.microsoft.com/dotnet/runtime:10.0-alpine AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .
-
-RUN apk add --no-cache \
-    icu-libs \
-    icu-data-full
-
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-ENV LANG=ru_RU.UTF-8
-ENV LC_ALL=ru_RU.UTF-8
 
 EXPOSE 8000
 
