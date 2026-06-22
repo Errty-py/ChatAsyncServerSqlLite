@@ -26,7 +26,7 @@ public class MessageRepository : IMessageRepository
                                         .ToListAsync();
     }
 
-    public async Task<MessageEntity?> GetByIdAsync(int id)
+    public async Task<MessageEntity?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Messages.FindAsync(id);
     }

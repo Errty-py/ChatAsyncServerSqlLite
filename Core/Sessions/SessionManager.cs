@@ -35,7 +35,7 @@ public class SessionManager
         return _sessions.Values.ToList();
     }
 
-    public bool IsOnline(int clientId)
+    public bool IsOnline(Guid clientId)
     {
         return _sessions.Values.Any(session => session.ClientId == clientId);
     }

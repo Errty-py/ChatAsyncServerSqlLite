@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Net;
+using Microsoft.Extensions.Hosting;
 
 namespace SpaceChatServer.Core;
 

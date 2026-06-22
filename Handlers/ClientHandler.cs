@@ -45,7 +45,7 @@ public class ClientHandler
         if (!session.IsAuthenticated)
             return;
         
-        int? id = packet.Data.Deserialize<int>();
+        Guid? id = packet.Data.Deserialize<Guid>();
     
         if (id is null)
         {
@@ -53,7 +53,7 @@ public class ClientHandler
             return;
         }
         
-        var (baseResponse, clientResponse) = await _service.GetByIdAsync((int)id);
+        var (baseResponse, clientResponse) = await _service.GetByIdAsync((Guid)id);
 
         if(!baseResponse.Success)
         {
@@ -132,7 +132,7 @@ public class ClientHandler
         if (!session.IsAuthenticated)
             return;
 
-        int? id = packet.Data.Deserialize<int>();
+        Guid? id = packet.Data.Deserialize<Guid>();
 
         if (id is null)
         {
@@ -147,7 +147,7 @@ public class ClientHandler
             return;
         }
 
-        var (response, _) = await _service.DeleteAsync((int)id);
+        var (response, _) = await _service.DeleteAsync((Guid)id);
 
         if(!response.Success)
         {

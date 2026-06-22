@@ -138,13 +138,19 @@ public class MessageHandler
         _logger.LogInformation("Delete message request received from client {ClientId}",
                                session.ClientId);
 
-        int messageId = packet.Data.Deserialize<int>();
+        Guid? messageId = packet.Data.Deserialize<Guid>();
+
+        if (messageId is null)
+        {
+            _logger.LogWarning("Invalid message ID format");
+            return;
+        }
 
         _logger.LogInformation("Client {ClientId} requested deletion of message {MessageId}",
                         session.ClientId,
                         messageId);
 
-        BaseResponse response = await _service.DeleteAsync(session, messageId);
+        BaseResponse response = await _service.DeleteAsync(session, messageId.Value);
 
         string data = JsonSerializer.Serialize(response);
 

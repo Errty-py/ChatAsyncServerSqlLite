@@ -71,7 +71,7 @@ public class MessageService
         return responses;
     }
 
-    public async Task<BaseResponse> DeleteAsync(ClientSession session, int messageId)
+    public async Task<BaseResponse> DeleteAsync(ClientSession session, Guid messageId)
     {
         MessageEntity? message = await _repository.GetByIdAsync(messageId);
 

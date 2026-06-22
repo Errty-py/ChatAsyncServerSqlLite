@@ -35,7 +35,7 @@ public class ClientService
         return responses;
     }
 
-    public async Task<(BaseResponse, ClientResponse?)> GetByIdAsync(int id)
+    public async Task<(BaseResponse, ClientResponse?)> GetByIdAsync(Guid id)
     {
         ClientEntity? client = await _repository.GetByIdAsync(id);
         
@@ -67,7 +67,7 @@ public class ClientService
         return (baseResponse, clientResponse);
     }
 
-    public async Task<(BaseResponse, ClientProfileResponse?)> UpdateAsync(int id, UpdateClientRequest request)
+    public async Task<(BaseResponse, ClientProfileResponse?)> UpdateAsync(Guid id, UpdateClientRequest request)
     {
         ClientEntity? client = await _repository.GetByIdAsync(id);
 
@@ -115,7 +115,7 @@ public class ClientService
         return (baseResponse, clientProfileResponse);
     }
 
-    public async Task<(BaseResponse, int?)> DeleteAsync(int id)
+    public async Task<(BaseResponse, Guid?)> DeleteAsync(Guid id)
     {
         ClientEntity? clientEntity = await _repository.GetByIdAsync(id);
 

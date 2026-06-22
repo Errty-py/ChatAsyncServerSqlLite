@@ -24,7 +24,7 @@ public class ClientRepository : IClientRepository
         return await _dbContext.Clients.AsNoTracking().ToListAsync();
     }
 
-    public async Task<ClientEntity?> GetByIdAsync(int id)
+    public async Task<ClientEntity?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Clients.FindAsync(id);
     }

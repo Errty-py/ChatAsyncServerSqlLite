@@ -12,12 +12,12 @@ using SpaceChatServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
 using System.Net;
 
 using Serilog;
-using Microsoft.Extensions.Options;
 
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder();
