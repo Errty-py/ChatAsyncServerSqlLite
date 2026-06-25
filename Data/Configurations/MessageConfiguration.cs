@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Data.Configurations;
 
@@ -11,7 +12,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<MessageEntity>
         entity.HasKey(m => m.Id);
 
         entity.Property(m => m.Text)
-              .HasMaxLength(500)
+              .HasMaxLength(Message.MAX_TEXT_LENGTH)
               .IsRequired();
 
         entity.Property(m => m.CreatedAt)

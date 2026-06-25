@@ -16,14 +16,14 @@ public class ConnectionHandler
     private readonly SessionManager _sessionManager;
     private readonly PacketRouter _router;
     private readonly NetworkHelper _networkHelper;
-    private readonly ITcpBroadcaster _broadcaster;
+    private readonly IPacketBroadcaster _broadcaster;
     private readonly ILogger<ConnectionHandler> _logger;
 
     public ConnectionHandler(ClientSession session,
                              SessionManager sessionManager,
                              PacketRouter router,
                              NetworkHelper networkHelper,
-                             ITcpBroadcaster broadcaster,
+                             IPacketBroadcaster broadcaster,
                              ILogger<ConnectionHandler> logger)
     {
         this._session = session;

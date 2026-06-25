@@ -10,7 +10,7 @@ public class ClientSession
 
     public required TcpClient TcpClient { get; init; }
 
-    public string Name { get; set; } = string.Empty;
+    public string ClientName { get; set; } = string.Empty;
 
     public bool IsAuthenticated { get; set; }
 }

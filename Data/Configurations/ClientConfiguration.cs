@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Data.Configurations;
 
@@ -11,11 +12,11 @@ public class ClientConfiguration : IEntityTypeConfiguration<ClientEntity>
         entity.HasKey(c => c.Id);
 
         entity.Property(c => c.Name)
-              .HasMaxLength(50)
+              .HasMaxLength(Client.MAX_NAME_LENGTH)
               .IsRequired();
 
         entity.Property(c => c.Login)
-              .HasMaxLength(50)
+              .HasMaxLength(Client.MAX_LOGIN_LENGTH)
               .IsRequired();
 
         entity.HasIndex(c => c.Login)

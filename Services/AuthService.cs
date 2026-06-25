@@ -3,6 +3,7 @@ using SpaceChatServer.Contracts.Requests;
 using SpaceChatServer.Contracts.Responses;
 using SpaceChatServer.Data.Entities;
 using SpaceChatServer.Core.Security;
+using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Services;
 
@@ -15,80 +16,46 @@ public class AuthService
         this._repository = repository;
     }
 
-    public async Task<(BaseResponse, ClientResponse?)> RegisterAsync(RegisterRequest request)
+    public async Task<(Client? client, string? error)> RegisterAsync(string name, string login, string password)
     {
-        bool exists = await _repository.ExistsByLoginAsync(request.Login);
+        var client = Client.Create(Guid.NewGuid(), name, login, password, null);
+
+        if (client.IsFailure)
+        {
+            return (null, client.Error);
+        }
+        
+        bool exists = await _repository.ExistsByLoginAsync(client.Value.Login);
 
         if (exists)
         {
-            return (new BaseResponse
-            {
-                Success = false,
-                Message = "Login already exists"
-            }, null);
+            return (null, "Client with this login already exists");
         }
 
-        ClientEntity client = new ClientEntity()
-        {
-            Name = request.Name,
-            Login = request.Login,
-            PasswordHash = PasswordHasher.Hash(request.Password)
-        };
+        await _repository.CreateAsync(client.Value);
 
-        await _repository.CreateAsync(client);
-
-        BaseResponse baseResponse = new BaseResponse
-        {
-            Success = true,
-            Message = "Registered"
-        };
-        ClientResponse clientResponse = new ClientResponse
-        {
-            Id = client.Id,
-            Name = client.Name
-        };
-
-        return (baseResponse, clientResponse);
+        return (client.Value, null);
     }
 
-    public async Task<(BaseResponse, ClientResponse?)> LoginAsync(LoginRequest request)
+    public async Task<(Client? client, string? error)> LoginAsync(string login, string password)
     {
-        ClientEntity? client = await _repository.GetByLoginAsync(request.Login);
+        Client? client = await _repository.GetByLoginAsync(login);
 
         if (client == null)
         {
-            return (new BaseResponse
-            {
-                Success = false,
-                Message = "Invalid credentials"
-            }, null);
+            return (null, "Client not found");
         }
 
         bool verified = PasswordHasher.Verify(
-            request.Password,
-            client.PasswordHash
+            password,
+            client.Password
         );
 
         if (!verified)
         {
-            return (new BaseResponse
-            {
-                Success = false,
-                Message = "Invalid credentials"
-            }, null);
+            return (null, "Invalid password");
         }
 
-        BaseResponse baseResponse = new BaseResponse
-        {
-            Success = true,
-            Message = "Logged in"
-        };
-        ClientResponse clientResponse = new ClientResponse
-        {
-            Id = client.Id,
-            Name = client.Name
-        };
-
-        return (baseResponse, clientResponse);
+        return (client, null);
     }
 }

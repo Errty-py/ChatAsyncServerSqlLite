@@ -1,6 +1,7 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
 using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Data.Repositories;
 
@@ -13,26 +14,73 @@ public class ClientRepository : IClientRepository
         this._dbContext = dbContext;
     }
 
-    public async Task CreateAsync(ClientEntity client)
+    public async Task CreateAsync(Client client)
     {
-        await _dbContext.Clients.AddAsync(client);
+        var clientEntity = new ClientEntity
+        {
+            Id = client.Id,
+            Name = client.Name,
+            Login = client.Login,
+            PasswordHash = client.Password
+        };
+
+        await _dbContext.Clients.AddAsync(clientEntity);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<ClientEntity>> GetAllAsync()
+    public async Task<List<Client>> GetAllAsync()
     {
-        return await _dbContext.Clients.AsNoTracking().ToListAsync();
+        var clientEntities = await _dbContext.Clients.AsNoTracking()
+                                                     .ToListAsync();
+
+        var clients = clientEntities.Select(c => Client.Create(c.Id,
+                                                               c.Name,
+                                                               c.Login,
+                                                               c.PasswordHash,
+                                                               c.Avatar).Value)
+                                    .ToList();
+    
+        return clients;
     }
 
-    public async Task<ClientEntity?> GetByIdAsync(Guid id)
+    public async Task<Client?> GetByIdAsync(Guid id)
     {
-        return await _dbContext.Clients.FindAsync(id);
+        var clientEntity = await _dbContext.Clients.FindAsync(id);
+
+        if(clientEntity is null)
+            return null;
+
+        var client = Client.Create(clientEntity.Id,
+                                   clientEntity.Name,
+                                   clientEntity.Login,
+                                   clientEntity.PasswordHash,
+                                   clientEntity.Avatar)
+                           .Value;
+
+        return client;
     }
 
-    public async Task<ClientEntity?> GetByLoginAsync(string login)
+    public async Task<Client?> GetByLoginAsync(string login)
     {
-        return await _dbContext.Clients.AsNoTracking()
-                                       .FirstOrDefaultAsync(c => c.Login == login);
+        var clientEntity = await _dbContext.Clients.AsNoTracking()
+                                                   .FirstOrDefaultAsync(c => c.Login == login);
+
+        if(clientEntity is null)
+            return null;
+        
+        var client = Client.Create(clientEntity.Id,
+                                   clientEntity.Name,
+                                   clientEntity.Login,
+                                   clientEntity.PasswordHash,
+                                   clientEntity.Avatar)
+                           .Value;
+
+        return client;
+    }
+
+    public async Task<bool> ExistsByIdAsync(Guid id)
+    {
+        return await _dbContext.Clients.AnyAsync(c => c.Id == id);
     }
 
     public async Task<bool> ExistsByLoginAsync(string login)
@@ -40,15 +88,44 @@ public class ClientRepository : IClientRepository
         return await _dbContext.Clients.AnyAsync(c => c.Login == login);
     }
 
-    public async Task UpdateAsync(ClientEntity client)
+    public async Task<bool> IsLoginOccupiedAsync(string login, Guid id)
     {
-        _dbContext.Clients.Update(client);
+        return await _dbContext.Clients.AnyAsync(c => c.Login == login && c.Id != id);
+    }
+
+    public async Task UpdateAsync(Client client)
+    {
+        var clientEntity = new ClientEntity
+        {
+            Id = client.Id,
+            Name = client.Name,
+            Login = client.Login,
+            PasswordHash = client.Password
+        };
+
+        await _dbContext.Clients
+        .Where(c => c.Id == client.Id)
+        .ExecuteUpdateAsync(setters => setters
+            .SetProperty(c => c.Name, client.Name)
+            .SetProperty(c => c.Login, client.Login)
+            .SetProperty(c => c.PasswordHash, client.Password)
+            .SetProperty(c => c.Avatar, client.Avatar)
+        );
 
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(ClientEntity clientEntity) 
+    public async Task DeleteAsync(Client client) 
     {
+        var clientEntity = new ClientEntity
+        {
+            Id = client.Id,
+            Name = client.Name,
+            Login = client.Login,
+            PasswordHash = client.Password,
+            Avatar = client.Avatar
+        };
+
         _dbContext.Clients.Remove(clientEntity);
 
         await _dbContext.SaveChangesAsync();

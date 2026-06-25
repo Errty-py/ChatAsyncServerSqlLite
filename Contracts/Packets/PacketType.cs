@@ -24,6 +24,7 @@ public enum PacketType
     ClientUpdated,
     ClientDeleted,
 
+    ClientList,
     MessageReceived,
     MessageHistoryReceived,
     MessageAdded,

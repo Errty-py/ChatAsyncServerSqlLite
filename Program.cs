@@ -61,7 +61,7 @@ builder.Services.AddSingleton<Server>(provider =>
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
-builder.Services.AddSingleton<ITcpBroadcaster, TcpBroadcaster>();
+builder.Services.AddSingleton<IPacketBroadcaster, PacketBroadcaster>();
 builder.Services.AddSingleton<NetworkHelper>();
 builder.Services.AddSingleton<SessionManager>();
 

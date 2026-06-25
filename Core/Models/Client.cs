@@ -10,19 +10,19 @@ public class Client
     public Guid Id { get; }
     public string Name { get; } = string.Empty;
     public string Login { get; } = string.Empty;
-    public string PasswordHash { get; } = string.Empty;
+    public string Password { get; } = string.Empty;
     public byte[]? Avatar { get; } = null;
 
-    private Client(Guid id, string name, string login, string passwordHash, byte[]? avatar)
+    private Client(Guid id, string name, string login, string password, byte[]? avatar)
     {
         this.Id = id;
         this.Name = name;
         this.Login = login;
-        this.PasswordHash = passwordHash;
+        this.Password = password;
         this.Avatar = avatar;
     }
 
-    public Result<Client> Create(Guid id, string name, string login, string passwordHash, byte[]? avatar)
+    public static Result<Client> Create(Guid id, string name, string login, string password, byte[]? avatar)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length > MAX_NAME_LENGTH)
             return Result.Failure<Client>("Name cannot be empty.");
@@ -30,9 +30,12 @@ public class Client
         if (string.IsNullOrWhiteSpace(login) || login.Length > MAX_LOGIN_LENGTH)
             return Result.Failure<Client>("Login cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(passwordHash))
-            return Result.Failure<Client>("Password hash cannot be empty.");
+        if (string.IsNullOrWhiteSpace(password))
+            return Result.Failure<Client>("Password cannot be empty.");
 
-        return Result.Success(new Client(id, name, login, passwordHash, avatar));
+        if (avatar is not null && avatar.Length > 1024 * 1024 * 8)
+            return Result.Failure<Client>("Avatar too large (max 8MB)");
+
+        return Result.Success(new Client(id, name, login, password, avatar));
     }
 }

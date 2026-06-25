@@ -19,7 +19,7 @@ public class Message
         this.CreatedAt = createdAt;
     }
 
-    public Result<Message> Create(Guid id, Guid fromClientId, string text)
+    public static Result<Message> Create(Guid id, Guid fromClientId, string text, DateTime createdAt)
     {
         if (string.IsNullOrWhiteSpace(text))
             return Result.Failure<Message>("Message text cannot be empty.");
@@ -30,6 +30,6 @@ public class Message
         if (fromClientId == Guid.Empty)
                 return Result.Failure<Message>("FromClientId cannot be empty.");
 
-        return Result.Success(new Message(id, fromClientId, text, DateTime.UtcNow));
+        return Result.Success(new Message(id, fromClientId, text, createdAt));
     }
 }

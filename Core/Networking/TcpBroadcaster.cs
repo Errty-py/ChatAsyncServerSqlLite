@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 
 namespace SpaceChatServer.Core.Networking;
 
-public class TcpBroadcaster : ITcpBroadcaster
+public class PacketBroadcaster : IPacketBroadcaster
 {
     private readonly SessionManager _sessionManager;
     private readonly NetworkHelper _networkHelper;
-    private readonly ILogger<TcpBroadcaster> _logger;
+    private readonly ILogger<PacketBroadcaster> _logger;
 
-    public TcpBroadcaster(SessionManager sessionManager,
+    public PacketBroadcaster(SessionManager sessionManager,
                                  NetworkHelper networkHelper,
-                                 ILogger<TcpBroadcaster> logger)
+                                 ILogger<PacketBroadcaster> logger)
     {
         this._sessionManager = sessionManager;
         this._networkHelper = networkHelper;

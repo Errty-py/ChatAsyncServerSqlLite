@@ -14,12 +14,12 @@ public class AuthHandler
 {
     private readonly AuthService _authService;
     private readonly NetworkHelper _networkHelper;
-    private readonly ITcpBroadcaster _broadcaster;
+    private readonly IPacketBroadcaster _broadcaster;
     private readonly ILogger<AuthHandler> _logger;
-
+    
     public AuthHandler(AuthService authService,
                        NetworkHelper networkHelper,
-                       ITcpBroadcaster broadcaster,
+                       IPacketBroadcaster broadcaster,
                        ILogger<AuthHandler> logger)
     {
         this._authService = authService;
@@ -29,9 +29,7 @@ public class AuthHandler
     }
 
     public async Task RegistrationAsync(ClientSession session, Packet packet)
-    {
-        _logger.LogInformation("Register request received from session");
-        
+    {   
         RegisterRequest? request = packet.Data.Deserialize<RegisterRequest>();
 
         if (request == null)
@@ -41,37 +39,60 @@ public class AuthHandler
             return;
         }
 
-        var (baseResponse, clientResponse) = await _authService.RegisterAsync(request);
+        var (client, error) = await _authService.RegisterAsync(request.Name, request.Login, request.Password);
 
-        Packet baseResponsePacket = new Packet
+        if (!string.IsNullOrEmpty(error))
         {
-            Type = PacketType.ClientRegistered,
-            Data = JsonSerializer.SerializeToElement(baseResponse)
-        };
-
-        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
-
-        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), baseResponseJson);
-
-        if (!baseResponse.Success)
-        {
-            _logger.LogWarning("Registration failed for login {Login}: {Message}",
+            _logger.LogWarning("Registration failed for login {Login}: {Error}",
                                request.Login,
-                               baseResponse.Message);
+                               error);
+
+            var errorBaseResponse = new BaseResponse
+            {
+                Success = false,
+                Message = error
+            };
+            var errorResponsePacket = new Packet
+            {
+                Type = PacketType.ClientRegistered,
+                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
+            };
+
+            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
+            
+            await _networkHelper.WriteAsync(session.TcpClient.GetStream(), errorResponseJson);
+            
             return;
         }
 
         _logger.LogInformation("User registered successfully: {Login}",
                                    request.Login);
 
-        Packet clientResponsePacket = new Packet
+        var baseResponse = new BaseResponse
+        {
+            Success = true,
+            Message = "Registered"
+        };
+        var clientResponse = new ClientResponse
+        {
+            Id = client!.Id,
+            Name = client.Name
+        };
+        var baseResponsePacket = new Packet
+        {
+            Type = PacketType.ClientRegistered,
+            Data = JsonSerializer.SerializeToElement(baseResponse)
+        };
+        var clientResponsePacket = new Packet
         {
             Type = PacketType.ClientRegistered,
             Data = JsonSerializer.SerializeToElement(clientResponse)
         };
-        
+
+        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
         string clientResponseJson = JsonSerializer.Serialize(clientResponsePacket);
-        
+
+        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), baseResponseJson);
         await _broadcaster.BroadcastAsync(session, clientResponseJson);
     }
 
@@ -88,9 +109,45 @@ public class AuthHandler
             return;
         }
 
-        var (baseResponse, clientResponse) = await _authService.LoginAsync(request);
+        var (client, error) = await _authService.LoginAsync(request.Login, request.Password);
 
-        Packet responsePacket = new Packet
+        if (!string.IsNullOrEmpty(error))
+        {
+            _logger.LogWarning("Login failed for {Login}: {Error}",
+                               request.Login,
+                               error);
+
+            var errorBaseResponse = new BaseResponse
+            {
+                Success = false,
+                Message = error
+            };
+            var errorResponsePacket = new Packet
+            {
+                Type = PacketType.ClientLogged,
+                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
+            };
+
+            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
+            
+            await _networkHelper.WriteAsync(session.TcpClient.GetStream(), errorResponseJson);
+            
+            return;
+        }
+
+        var baseResponse = new BaseResponse
+        {
+            Success = true,
+            Message = "Logged in"
+        };
+        var clientResponse = new ClientResponse
+        {
+            Id = client!.Id,
+            Name = client.Name,
+            IsOnline = true,
+            Avatar = client.Avatar
+        };
+        var responsePacket = new Packet
         {
             Type = PacketType.ClientLogged,
             Data = JsonSerializer.SerializeToElement(new
@@ -104,30 +161,20 @@ public class AuthHandler
     
         await _networkHelper.WriteAsync(session.TcpClient.GetStream(), responseJson);
         
-        if (!baseResponse.Success && clientResponse is null)
-        {    
-            _logger.LogWarning("Login failed for {Login}: {Message}",
-                               request.Login,
-                               baseResponse.Message);
-
-            return;
-        }
-        
         _logger.LogInformation("Login success: {ClientId} ({Name})",
                                clientResponse!.Id,
                                clientResponse.Name);
 
         session.ClientId = clientResponse.Id;
-        session.Name = clientResponse.Name;
+        session.ClientName = clientResponse.Name;
         session.IsAuthenticated = true;
 
-        ClientStatusResponse statusResponse = new()
+        var statusResponse = new ClientStatusResponse
         {
             ClientId = session.ClientId,
             IsOnline = true
         };
-        
-        Packet broadcastPacket = new()
+        var broadcastPacket = new Packet
         {
             Type = PacketType.ClientStatusChanged,
             Data = JsonSerializer.SerializeToElement(statusResponse)

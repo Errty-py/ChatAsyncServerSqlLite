@@ -1,143 +1,65 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
 using SpaceChatServer.Contracts.Requests;
-using SpaceChatServer.Contracts.Responses;
-using SpaceChatServer.Core.Sessions;
-using SpaceChatServer.Data.Entities;
+using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Services;
 
 public class ClientService
 {
     private readonly IClientRepository _repository;
-    private readonly SessionManager _sessionManager;
 
-    public ClientService(IClientRepository repository,
-                         SessionManager sessionManager)
+    public ClientService(IClientRepository repository)
     {
         this._repository = repository;
-        this._sessionManager = sessionManager;
     }
     
-    public async Task<List<ClientResponse>> GetAllAsync()
+    public async Task<List<Client>> GetAllAsync()
     {
-        List<ClientEntity> clients = await _repository.GetAllAsync();
-
-        List<ClientResponse> responses = 
-            clients.Select(client => new ClientResponse
-            {
-                Id = client.Id,
-                Name = client.Name,
-                Avatar = client.Avatar,
-                IsOnline = _sessionManager.IsOnline(client.Id)
-            })
-            .ToList();
-
-        return responses;
+        return await _repository.GetAllAsync();
     }
 
-    public async Task<(BaseResponse, ClientResponse?)> GetByIdAsync(Guid id)
+    public async Task<(Client? client, string? error)> GetByIdAsync(Guid id)
     {
-        ClientEntity? client = await _repository.GetByIdAsync(id);
+        Client? client = await _repository.GetByIdAsync(id);
         
         if (client is null)
-        {
-            BaseResponse errorResponse = new BaseResponse
-            {
-                Success = false,
-                Message = "Invalid credentials"
-            };
+            return (null, "Client not found");
 
-            return (errorResponse, null);
-        }
-
-        BaseResponse baseResponse = new BaseResponse
-        {
-            Success = true,
-            Message = "Receiving customer data was successful"
-        };
-        ClientResponse clientResponse = new ClientResponse 
-        {
-            Id = client.Id,
-            Name = client.Name,
-            Avatar = client.Avatar,
-            IsOnline = _sessionManager.IsOnline(client.Id)
-        };
-
-
-        return (baseResponse, clientResponse);
+        return (client, null);
     }
 
-    public async Task<(BaseResponse, ClientProfileResponse?)> UpdateAsync(Guid id, UpdateClientRequest request)
+    public async Task<(Client? client, string? error)> UpdateAsync(Guid id, string name, string login, string password, byte[]? avatar)
     {
-        ClientEntity? client = await _repository.GetByIdAsync(id);
+        var client = Client.Create(id, name, login, password, avatar);
 
-        if (client is null)
-        {
-            return (new BaseResponse
-            {
-                Success = false,
-                Message = "Client not found"
-            }, null);
-        }
+        if (client.IsFailure)
+            return (null, client.Error);
 
-        client.Name = request.Name;
-        client.Login = request.Login;
+        bool clientExists = await _repository.ExistsByIdAsync(client.Value.Id);
 
-        if (request.Avatar is not null)
-        {
-            if (request.Avatar.Length > 1024 * 1024 * 8)
-            {
-                return (new BaseResponse
-                {
-                    Success = false,
-                    Message = "Avatar too large (max 8MB)"
-                }, null);
-            }
+        if (!clientExists)
+            return (null, "Client not found");
 
-            client.Avatar = request.Avatar;
-        }
+        bool isLoginOccupied = await _repository.IsLoginOccupiedAsync(client.Value.Login, client.Value.Id);
 
-        await _repository.UpdateAsync(client);
+        if (isLoginOccupied)
+            return (null, "Login is already occupied by another client");
 
-        BaseResponse baseResponse = new BaseResponse
-        {
-            Success = true,
-            Message = "Client updated"
-        };
-        ClientProfileResponse clientProfileResponse = new ClientProfileResponse
-        {
-            Id = client.Id,
-            Name = client.Name,
-            Login = client.Login,
-            Avatar = client.Avatar
-        };
 
-        return (baseResponse, clientProfileResponse);
+        await _repository.UpdateAsync(client.Value);
+
+        return (client.Value, null);
     }
 
-    public async Task<(BaseResponse, Guid?)> DeleteAsync(Guid id)
+    public async Task<(Guid? id, string? error)> DeleteAsync(Guid id)
     {
-        ClientEntity? clientEntity = await _repository.GetByIdAsync(id);
+        Client? client = await _repository.GetByIdAsync(id);
+    
+        if(client is null)
+            return (null, "Client not found");
 
-        if(clientEntity is null)
-        {
-            BaseResponse errorResponse = new BaseResponse
-            {
-                Success = false,
-                Message = "Invalid credentials"
-            };
+        await _repository.DeleteAsync(client);
 
-            return (errorResponse, null);
-        }
-
-        await _repository.DeleteAsync(clientEntity);
-
-        BaseResponse baseResponse = new BaseResponse
-        {
-            Success = true,
-            Message = "The client was deleted",
-        };
-
-        return (baseResponse, id);
+        return (id, null);
     }
 }

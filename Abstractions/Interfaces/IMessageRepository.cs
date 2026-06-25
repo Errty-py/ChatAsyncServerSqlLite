@@ -1,11 +1,12 @@
-﻿using SpaceChatServer.Data.Entities;
+﻿using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Abstractions.Interfaces;
 
 public interface IMessageRepository
 {
-    public Task AddAsync(MessageEntity message);
-    public Task<MessageEntity?> GetByIdAsync(Guid id);
-    public Task<List<MessageEntity>> GetAllAsync();
-    public Task DeleteAsync(MessageEntity entity);
+    public Task AddAsync(Message message);
+    public Task<Message?> GetByIdAsync(Guid id);
+    public Task<List<Message>> GetAllAsync();
+    public Task<bool> IsMessageOccupiedAsync(Guid id, Guid fromClientId);
+    public Task DeleteAsync(Message entity);
 }

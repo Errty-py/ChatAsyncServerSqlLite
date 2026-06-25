@@ -1,6 +1,7 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
 using SpaceChatServer.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Data.Repositories;
 
@@ -13,27 +14,60 @@ public class MessageRepository : IMessageRepository
         this._dbContext = dbContext;
     }
 
-    public async Task AddAsync(MessageEntity message)
+    public async Task AddAsync(Message message)
     {
-        await _dbContext.Messages.AddAsync(message);
+        MessageEntity messageEntity = new MessageEntity()
+        {
+            Id = message.Id,
+            FromClientId = message.FromClientId,
+            Text = message.Text,
+            CreatedAt = message.CreatedAt
+        };
+
+        await _dbContext.Messages.AddAsync(messageEntity);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<MessageEntity>> GetAllAsync()
+    public async Task<List<Message>> GetAllAsync()
     {
-        return await _dbContext.Messages.Include(x => x.FromClient.Name)
-                                        .AsNoTracking()
-                                        .ToListAsync();
+        List<MessageEntity> messageEntities = await _dbContext.Messages.AsNoTracking()
+                                                                       .ToListAsync();
+
+        return messageEntities.Select(m => Message.Create(m.Id,
+                                                          m.FromClientId,
+                                                          m.Text,
+                                                          m.CreatedAt).Value).ToList();
     }
 
-    public async Task<MessageEntity?> GetByIdAsync(Guid id)
+    public async Task<Message?> GetByIdAsync(Guid id)
     {
-        return await _dbContext.Messages.FindAsync(id);
+        MessageEntity? messageEntity = await _dbContext.Messages.FindAsync(id);
+
+        if (messageEntity is null)
+            return null;
+
+        return Message.Create(messageEntity.Id,
+                              messageEntity.FromClientId,
+                              messageEntity.Text,
+                              messageEntity.CreatedAt).Value;
     }
 
-    public async Task DeleteAsync(MessageEntity entity) 
+    public async Task<bool> IsMessageOccupiedAsync(Guid id, Guid fromClientId)
     {
-        _dbContext.Messages.Remove(entity);
+        return await _dbContext.Messages.AnyAsync(m => m.Id == id && m.FromClientId != fromClientId);
+    }
+    
+    public async Task DeleteAsync(Message message) 
+    {
+        MessageEntity? messageEntity = new MessageEntity
+        {
+            Id = message.Id,
+            FromClientId = message.FromClientId,
+            Text = message.Text,
+            CreatedAt = message.CreatedAt
+        };
+
+        _dbContext.Messages.Remove(messageEntity);
         await _dbContext.SaveChangesAsync();
     }
 }
