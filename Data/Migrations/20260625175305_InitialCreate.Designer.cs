@@ -12,7 +12,7 @@ using SpaceChatServer.Data;
 namespace SpaceChatServer.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260604130118_InitialCreate")]
+    [Migration("20260625175305_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,11 +27,9 @@ namespace SpaceChatServer.Data.Migrations
 
             modelBuilder.Entity("SpaceChatServer.Data.Entities.ClientEntity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<byte[]>("Avatar")
                         .HasColumnType("bytea");
@@ -43,8 +41,8 @@ namespace SpaceChatServer.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -60,22 +58,20 @@ namespace SpaceChatServer.Data.Migrations
 
             modelBuilder.Entity("SpaceChatServer.Data.Entities.MessageEntity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("FromClientId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("FromClientId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
 
                     b.HasKey("Id");
 
