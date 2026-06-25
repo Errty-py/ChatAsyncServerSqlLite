@@ -4,8 +4,8 @@ namespace SpaceChatServer.Core.Models;
 
 public class Client
 {
-    public const int MAX_NAME_LENGTH = 100;
-    public const int MAX_LOGIN_LENGTH = 50;
+    public const int MAX_NAME_LENGTH = 50;
+    public const int MAX_LOGIN_LENGTH = 25;
 
     public Guid Id { get; }
     public string Name { get; } = string.Empty;
