@@ -39,7 +39,9 @@ public class AuthHandler
             return;
         }
 
-        var (client, error) = await _authService.RegisterAsync(request.Name, request.Login, request.Password);
+        var (client, error) = await _authService.RegisterAsync(request.Name,
+                                                               request.Login,
+                                                               request.Password);
 
         if (!string.IsNullOrEmpty(error))
         {
@@ -66,7 +68,7 @@ public class AuthHandler
         }
 
         _logger.LogInformation("User registered successfully: {Login}",
-                                   request.Login);
+                               request.Login);
 
         var baseResponse = new BaseResponse
         {
@@ -109,7 +111,8 @@ public class AuthHandler
             return;
         }
 
-        var (client, error) = await _authService.LoginAsync(request.Login, request.Password);
+        var (client, error) = await _authService.LoginAsync(request.Login,
+                                                            request.Password);
 
         if (!string.IsNullOrEmpty(error))
         {

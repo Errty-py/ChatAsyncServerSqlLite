@@ -1,7 +1,4 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
-using SpaceChatServer.Contracts.Requests;
-using SpaceChatServer.Contracts.Responses;
-using SpaceChatServer.Data.Entities;
 using SpaceChatServer.Core.Security;
 using SpaceChatServer.Core.Models;
 
@@ -18,7 +15,9 @@ public class AuthService
 
     public async Task<(Client? client, string? error)> RegisterAsync(string name, string login, string password)
     {
-        var client = Client.Create(Guid.NewGuid(), name, login, password, null);
+        string passwordHash = PasswordHasher.Hash(password);
+        
+        var client = Client.Create(Guid.NewGuid(), name, login, passwordHash, null);
 
         if (client.IsFailure)
         {

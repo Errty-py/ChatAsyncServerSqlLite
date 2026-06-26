@@ -30,7 +30,7 @@ public class MessageRepository : IMessageRepository
 
     public async Task<List<Message>> GetAllAsync()
     {
-        List<MessageEntity> messageEntities = await _dbContext.Messages.AsNoTracking()
+        var messageEntities = await _dbContext.Messages.AsNoTracking()
                                                                        .ToListAsync();
 
         return messageEntities.Select(m => Message.Create(m.Id,

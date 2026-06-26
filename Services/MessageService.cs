@@ -1,9 +1,5 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
-using SpaceChatServer.Contracts.Requests;
-using SpaceChatServer.Contracts.Responses;
 using SpaceChatServer.Core.Models;
-using SpaceChatServer.Core.Sessions;
-using SpaceChatServer.Data.Entities;
 
 namespace SpaceChatServer.Services;
 
@@ -33,9 +29,7 @@ public class MessageService
 
     public async Task<List<Message>> GetAllAsync()
     {
-        List<Message> messages = await _repository.GetAllAsync();
-
-        return messages;
+        return await _repository.GetAllAsync();
     }
 
     public async Task<(Guid id, string? error)> DeleteAsync(Guid fromClientId, Guid messageId)

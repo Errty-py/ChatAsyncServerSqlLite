@@ -1,5 +1,4 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
-using SpaceChatServer.Contracts.Requests;
 using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Services;

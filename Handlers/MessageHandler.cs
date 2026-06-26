@@ -128,7 +128,8 @@ public class MessageHandler
         _logger.LogInformation("Message history requested by client {ClientId}",
                                session.ClientId);
 
-        List<Message> messages = await _service.GetAllAsync();
+        var messages = await _service.GetAllAsync();
+        
         List<MessageResponse> responses =
             messages.Select(message => new MessageResponse
             {
@@ -151,8 +152,7 @@ public class MessageHandler
         };
 
         string json = JsonSerializer.Serialize(packet);
-
-        NetworkStream stream = session.TcpClient.GetStream();
+        var stream = session.TcpClient.GetStream();
     
         await _networkHelper.WriteAsync(stream, json);
 

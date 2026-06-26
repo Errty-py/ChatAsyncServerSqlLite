@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using SpaceChatServer.Contracts.Responses;
 using SpaceChatServer.Services;
 using SpaceChatServer.Abstractions.Interfaces;
-using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Handlers;
 
@@ -38,6 +37,7 @@ public class ClientHandler
             return;
 
         var clients = await _service.GetAllAsync();
+        
         List<ClientResponse> responses = 
             clients.Select(client => new ClientResponse
             {
