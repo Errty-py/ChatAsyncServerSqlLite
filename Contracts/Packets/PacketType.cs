@@ -11,6 +11,7 @@ public enum PacketType
     GetAllClients,
     GetClientById,
     UpdateClient,
+    ChangeClientPassword,
     DeleteClient,
 
     SendMessage,
@@ -22,7 +23,9 @@ public enum PacketType
     ClientReceived,
     ClientStatusChanged,
     ClientUpdated,
+    ClientPasswordChanged,
     ClientDeleted,
+    
 
     ClientList,
     MessageReceived,

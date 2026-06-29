@@ -21,7 +21,7 @@ public class ClientRepository : IClientRepository
             Id = client.Id,
             Name = client.Name,
             Login = client.Login,
-            PasswordHash = client.Password
+            PasswordHash = client.PasswordHash
         };
 
         await _dbContext.Clients.AddAsync(clientEntity);
@@ -100,7 +100,7 @@ public class ClientRepository : IClientRepository
             Id = client.Id,
             Name = client.Name,
             Login = client.Login,
-            PasswordHash = client.Password
+            PasswordHash = client.PasswordHash
         };
 
         await _dbContext.Clients
@@ -108,7 +108,7 @@ public class ClientRepository : IClientRepository
         .ExecuteUpdateAsync(setters => setters
             .SetProperty(c => c.Name, client.Name)
             .SetProperty(c => c.Login, client.Login)
-            .SetProperty(c => c.PasswordHash, client.Password)
+            .SetProperty(c => c.PasswordHash, client.PasswordHash)
             .SetProperty(c => c.Avatar, client.Avatar)
         );
 
@@ -122,7 +122,7 @@ public class ClientRepository : IClientRepository
             Id = client.Id,
             Name = client.Name,
             Login = client.Login,
-            PasswordHash = client.Password,
+            PasswordHash = client.PasswordHash,
             Avatar = client.Avatar
         };
 

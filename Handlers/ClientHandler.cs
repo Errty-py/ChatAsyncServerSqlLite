@@ -138,7 +138,6 @@ public class ClientHandler
         var (client, error) = await _service.UpdateAsync(session.ClientId,
                                                          request.Name,
                                                          request.Login,
-                                                         request.PasswordHash,
                                                          request.Avatar);
         var stream = session.TcpClient.GetStream();
         
@@ -204,7 +203,63 @@ public class ClientHandler
         await _broadcaster.BroadcastAsync(session, broadcastJson);
     }
 
-    public async Task DeleteAsync(ClientSession session, Packet packet)
+    public async Task ChangePassword(ClientSession session, Packet packet)
+    {
+        if (!session.IsAuthenticated)
+            return;
+
+        var request = packet.Data.Deserialize<ChangePasswordRequest>();
+
+        if (request is null)
+        {
+            _logger.LogWarning("Invalid ChangePassword request");
+               
+            return;
+        }
+
+        var (client, error) = await _service.ChangePassword(session.ClientId, request.Password);
+        var stream = session.TcpClient.GetStream();
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            _logger.LogInformation("User password change failed: {Error}", 
+                                   error);
+
+            var errorBaseResponse = new BaseResponse
+            {
+                Success = false,
+                Message = error
+            };
+            var errorResponsePacket = new Packet
+            {
+                Type = PacketType.ClientPasswordChanged,
+                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
+            };
+
+            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
+
+            await _networkHelper.WriteAsync(stream, errorResponseJson);
+
+            return;
+        }
+
+        var baseResponse = new BaseResponse
+        {
+            Success = true,
+            Message = "Password changed successfully"
+        };
+        var responsePacket = new Packet
+        {
+            Type = PacketType.ClientPasswordChanged,
+            Data = JsonSerializer.SerializeToElement(baseResponse)
+        };
+
+        string responseJson = JsonSerializer.Serialize(responsePacket);
+
+        await _networkHelper.WriteAsync(stream, responseJson);
+    }
+
+    public async Task DeleteAsync(ClientSession session)
     {
         if (!session.IsAuthenticated)
             return;

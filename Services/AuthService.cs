@@ -47,7 +47,7 @@ public class AuthService
 
         bool verified = PasswordHasher.Verify(
             password,
-            client.Password
+            client.PasswordHash
         );
 
         if (!verified)

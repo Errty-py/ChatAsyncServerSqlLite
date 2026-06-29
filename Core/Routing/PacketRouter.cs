@@ -70,8 +70,15 @@ public class PacketRouter
             case PacketType.DeleteClient:
                 _logger.LogInformation("Routing to ClientHandler.DeleteAsync");
 
-                await _clientHandler.DeleteAsync(session, packet);
+                await _clientHandler.DeleteAsync(session);
                 
+                break;
+
+            case PacketType.ChangeClientPassword:
+                _logger.LogInformation("Routing to ClientHandler.ChangePassword");
+
+                await _clientHandler.ChangePassword(session, packet);
+
                 break;
 
             case PacketType.SendMessage:

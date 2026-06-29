@@ -1,5 +1,6 @@
 ﻿using SpaceChatServer.Abstractions.Interfaces;
 using SpaceChatServer.Core.Models;
+using SpaceChatServer.Core.Security;
 
 namespace SpaceChatServer.Services;
 
@@ -27,27 +28,46 @@ public class ClientService
         return (client, null);
     }
 
-    public async Task<(Client? client, string? error)> UpdateAsync(Guid id, string name, string login, string password, byte[]? avatar)
+    public async Task<(Client? client, string? error)> UpdateAsync(Guid id, string name, string login, byte[]? avatar)
     {
-        var client = Client.Create(id, name, login, password, avatar);
+        var client = await _repository.GetByIdAsync(id);
 
-        if (client.IsFailure)
-            return (null, client.Error);
-
-        bool clientExists = await _repository.ExistsByIdAsync(client.Value.Id);
-
-        if (!clientExists)
+        if (client is null)
             return (null, "Client not found");
 
-        bool isLoginOccupied = await _repository.IsLoginOccupiedAsync(client.Value.Login, client.Value.Id);
+        bool isLoginOccupied = await _repository.IsLoginOccupiedAsync(login, id);
 
         if (isLoginOccupied)
             return (null, "Login is already occupied by another client");
 
+        var updateResult = client.Update(name,
+                                         login,
+                                         avatar);
 
-        await _repository.UpdateAsync(client.Value);
+        if (updateResult.IsFailure)
+            return (null, updateResult.Error);
 
-        return (client.Value, null);
+        await _repository.UpdateAsync(client);
+
+        return (client, null);
+    }
+
+    public async Task<(Client? client, string? error)> ChangePassword(Guid id, string password)
+    {
+        var client = await _repository.GetByIdAsync(id);
+
+        if (client is null)
+            return (null, "Client not found");
+
+        var passwordHash = PasswordHasher.Hash(password);
+        var changePasswordResult = client.ChangePassword(passwordHash);
+
+        if (changePasswordResult.IsFailure)
+            return (null, changePasswordResult.Error);
+
+        await _repository.UpdateAsync(client);
+
+        return (client, null);
     }
 
     public async Task<(Guid? id, string? error)> DeleteAsync(Guid id)
