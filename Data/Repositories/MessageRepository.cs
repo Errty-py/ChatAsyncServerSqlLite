@@ -59,15 +59,12 @@ public class MessageRepository : IMessageRepository
     
     public async Task DeleteAsync(Message message) 
     {
-        MessageEntity? messageEntity = new MessageEntity
-        {
-            Id = message.Id,
-            FromClientId = message.FromClientId,
-            Text = message.Text,
-            CreatedAt = message.CreatedAt
-        };
+        var messageEntity = await _dbContext.Messages.FindAsync(message.Id);
 
-        _dbContext.Messages.Remove(messageEntity);
-        await _dbContext.SaveChangesAsync();
+        if (messageEntity != null)
+        {
+            _dbContext.Messages.Remove(messageEntity);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
