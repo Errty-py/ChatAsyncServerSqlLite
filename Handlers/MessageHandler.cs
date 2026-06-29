@@ -94,7 +94,11 @@ public class MessageHandler
         var baseResponsePacket = new Packet
         {
             Type = PacketType.MessageAdded,
-            Data = JsonSerializer.SerializeToElement(baseResponse)
+            Data = JsonSerializer.SerializeToElement(new
+            {
+                baseResponse,
+                messageResponse
+            })
         };
         var messageResponsePacket = new Packet
         {
