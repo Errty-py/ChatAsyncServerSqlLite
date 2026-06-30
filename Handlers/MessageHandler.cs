@@ -5,10 +5,8 @@ using SpaceChatServer.Services;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using SpaceChatServer.Contracts.Responses;
-using System.Net.Sockets;
 using SpaceChatServer.Core.Networking;
 using SpaceChatServer.Abstractions.Interfaces;
-using SpaceChatServer.Core.Models;
 
 namespace SpaceChatServer.Handlers;
 
@@ -21,7 +19,7 @@ public class MessageHandler
 
     public MessageHandler(MessageService messageService,
                           NetworkHelper networkHelper,
-                          IPacketBroadcaster broadcaster, 
+                          IPacketBroadcaster broadcaster,
                           ILogger<MessageHandler> logger)
     {
         this._service = messageService;
@@ -29,7 +27,7 @@ public class MessageHandler
         this._broadcaster = broadcaster;
         this._logger = logger;
     }
-    
+
     public async Task SendAsync(ClientSession session, Packet packet)
     {
         if (!session.IsAuthenticated)
@@ -38,10 +36,10 @@ public class MessageHandler
 
             return;
         }
-        
+
         _logger.LogInformation("Message send request received from client {ClientId}",
                                session.ClientId);
-                               
+
         MessageRequest? request = packet.Data.Deserialize<MessageRequest>();
 
         if (request is null)
@@ -53,13 +51,13 @@ public class MessageHandler
 
         var (message, error) = await _service.AddAsync(session.ClientId, request.Text);
         var stream = session.TcpClient.GetStream();
-        
+
         if (!string.IsNullOrEmpty(error))
         {
             _logger.LogWarning("Message send failed for client {ClientId}: {Error}",
                                session.ClientId,
                                error);
-            
+
             var errorBaseResponse = new BaseResponse
             {
                 Success = false,
@@ -133,7 +131,7 @@ public class MessageHandler
                                session.ClientId);
 
         var messages = await _service.GetAllAsync();
-        
+
         List<MessageResponse> responses =
             messages.Select(message => new MessageResponse
             {
@@ -157,7 +155,7 @@ public class MessageHandler
 
         string json = JsonSerializer.Serialize(packet);
         var stream = session.TcpClient.GetStream();
-    
+
         await _networkHelper.WriteAsync(stream, json);
 
         _logger.LogInformation("Message history sent to client {ClientId}",
@@ -234,6 +232,6 @@ public class MessageHandler
                                session.ClientId,
                                messageId);
         _logger.LogInformation("MessageDeleted event broadcasted for message {MessageId}",
-                               messageId);       
+                               messageId);
     }
 }

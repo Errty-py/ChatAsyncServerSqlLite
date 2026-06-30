@@ -2,7 +2,6 @@ using SpaceChatServer.Core.Networking;
 using SpaceChatServer.Routing;
 using SpaceChatServer.Core.Sessions;
 using SpaceChatServer.Contracts.Packets;
-using System.Net.Sockets;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SpaceChatServer.Contracts.Responses;
@@ -69,7 +68,6 @@ public class ConnectionHandler
         finally
         {
             bool wasAuthenticated = _session.IsAuthenticated;
-
             if (wasAuthenticated)
             {
                 ClientStatusResponse response = new()

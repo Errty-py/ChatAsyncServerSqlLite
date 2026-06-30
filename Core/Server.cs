@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Net;
-using Microsoft.Extensions.Hosting;
 
 namespace SpaceChatServer.Core;
 
@@ -34,10 +33,8 @@ public class Server
         _isRunning = true;
 
         _listener.Start();
-        
         _logger.LogInformation("Server started on port {Port}", _iPEndPoint.Port);
 
-        
         while (_isRunning)
         {
             TcpClient tcpClient =
@@ -73,9 +70,7 @@ public class Server
         finally
         {
             _sessionManager.Remove(session.SessionId);
-            
             session.TcpClient.Dispose();
-            
             tcpClient.Close();
 
             _logger.LogInformation("Client disconnected {ClientId}",
@@ -91,7 +86,7 @@ public class Server
 
         var sessions = _sessionManager.GetAll();
 
-        if(sessions is null)
+        if (sessions is null)
             return;
 
         foreach (ClientSession session in sessions)
@@ -100,7 +95,6 @@ public class Server
         }
 
         _logger.LogInformation("Server stoped");
-        
         await Task.CompletedTask;
     }
 }
