@@ -54,6 +54,9 @@ public class ClientService
 
     public async Task<(Client? client, string? error)> ChangePassword(Guid id, string password)
     {
+        if (string.IsNullOrWhiteSpace(password) || password.Length < AuthService.MinPasswordLength)
+            return (null, $"Password must be at least {AuthService.MinPasswordLength} characters long.");
+
         var client = await _repository.GetByIdAsync(id);
 
         if (client is null)
