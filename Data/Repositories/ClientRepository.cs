@@ -39,7 +39,7 @@ public class ClientRepository : IClientRepository
                                                                c.PasswordHash,
                                                                c.Avatar).Value)
                                     .ToList();
-    
+
         return clients;
     }
 
@@ -67,7 +67,7 @@ public class ClientRepository : IClientRepository
 
         if(clientEntity is null)
             return null;
-        
+
         var client = Client.Create(clientEntity.Id,
                                    clientEntity.Name,
                                    clientEntity.Login,
@@ -93,41 +93,25 @@ public class ClientRepository : IClientRepository
         return await _dbContext.Clients.AnyAsync(c => c.Login == login && c.Id != id);
     }
 
-    public async Task UpdateAsync(Client client)
+    public async Task<bool> UpdateAsync(Client client)
     {
-        var clientEntity = new ClientEntity
-        {
-            Id = client.Id,
-            Name = client.Name,
-            Login = client.Login,
-            PasswordHash = client.PasswordHash
-        };
+        int updatedCount = await _dbContext.Clients
+                                           .Where(c => c.Id == client.Id)
+                                           .ExecuteUpdateAsync(setters => setters
+                                               .SetProperty(c => c.Name, client.Name)
+                                               .SetProperty(c => c.Login, client.Login)
+                                               .SetProperty(c => c.PasswordHash, client.PasswordHash)
+                                               .SetProperty(c => c.Avatar, client.Avatar));
 
-        await _dbContext.Clients
-        .Where(c => c.Id == client.Id)
-        .ExecuteUpdateAsync(setters => setters
-            .SetProperty(c => c.Name, client.Name)
-            .SetProperty(c => c.Login, client.Login)
-            .SetProperty(c => c.PasswordHash, client.PasswordHash)
-            .SetProperty(c => c.Avatar, client.Avatar)
-        );
-
-        await _dbContext.SaveChangesAsync();
+        return updatedCount > 0;
     }
 
-    public async Task DeleteAsync(Client client) 
+    public async Task<bool> DeleteAsync(Client client)
     {
-        var clientEntity = new ClientEntity
-        {
-            Id = client.Id,
-            Name = client.Name,
-            Login = client.Login,
-            PasswordHash = client.PasswordHash,
-            Avatar = client.Avatar
-        };
+        int deletedCount = await _dbContext.Clients
+                                           .Where(c => c.Id == client.Id)
+                                           .ExecuteDeleteAsync();
 
-        _dbContext.Clients.Remove(clientEntity);
-
-        await _dbContext.SaveChangesAsync();
+        return deletedCount > 0;
     }
 }

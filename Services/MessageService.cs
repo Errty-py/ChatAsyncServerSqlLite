@@ -6,18 +6,18 @@ namespace SpaceChatServer.Services;
 public class MessageService
 {
     private readonly IMessageRepository _repository;
-    
+
     public MessageService(IMessageRepository repository)
     {
         this._repository = repository;
     }
 
     public async Task<(Message? message, string? error)> AddAsync(Guid fromClientId, string text)
-    {   
+    {
         var message = Message.Create(Guid.NewGuid(),
                                      fromClientId,
                                      text,
-                                     DateTime.UtcNow); 
+                                     DateTime.UtcNow);
 
         if (message.IsFailure)
             return (null, message.Error);
@@ -42,7 +42,10 @@ public class MessageService
         if(fromClientId != message.FromClientId)
             return (Guid.Empty, "You cannot delete other people's messages");
 
-        await _repository.DeleteAsync(message);
+        bool deleted = await _repository.DeleteAsync(message);
+
+        if (!deleted)
+            return (Guid.Empty, "Message not found");
 
         return (message.Id, null);
     }
