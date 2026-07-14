@@ -1,6 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
+using SpaceChatServer.Contracts.Packets;
+using SpaceChatServer.Contracts.Responses;
+using SpaceChatServer.Core.Sessions;
 
 namespace SpaceChatServer.Core.Networking;
 
@@ -38,6 +42,26 @@ public class NetworkHelper
 
             throw;
         }
+    }
+
+    public async Task<string> SendAsync(ClientSession session, Packet packet)
+    {
+        string json = JsonSerializer.Serialize(packet);
+
+        await WriteAsync(session.TcpClient.GetStream(), json);
+
+        return json;
+    }
+
+    public Task SendErrorAsync(ClientSession session, PacketType type, string? error)
+    {
+        var packet = Packet.Create(type, new BaseResponse
+        {
+            Success = false,
+            Message = error ?? string.Empty
+        });
+
+        return SendAsync(session, packet);
     }
 
     public async Task<string?> ReadAsync(NetworkStream stream)

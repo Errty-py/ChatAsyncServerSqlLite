@@ -76,11 +76,7 @@ public class ConnectionHandler
                     IsOnline = false
                 };
 
-                Packet packet = new()
-                {
-                    Type = PacketType.ClientStatusChanged,
-                    Data = JsonSerializer.SerializeToElement(response)
-                };
+                Packet packet = Packet.Create(PacketType.ClientStatusChanged, response);
 
                 await _broadcaster.BroadcastAsync(_session, JsonSerializer.Serialize(packet));
             }

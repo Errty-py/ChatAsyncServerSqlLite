@@ -50,7 +50,6 @@ public class MessageHandler
         }
 
         var (message, error) = await _service.AddAsync(session.ClientId, request.Text);
-        var stream = session.TcpClient.GetStream();
 
         if (!string.IsNullOrEmpty(error))
         {
@@ -58,20 +57,7 @@ public class MessageHandler
                                session.ClientId,
                                error);
 
-            var errorBaseResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.MessageAdded,
-                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
-            };
-
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-
-            await _networkHelper.WriteAsync(stream, errorResponseJson);
+            await _networkHelper.SendErrorAsync(session, PacketType.MessageAdded, error);
 
             return;
         }
@@ -89,25 +75,15 @@ public class MessageHandler
             Text = message.Text,
             CreatedAt = message.CreatedAt
         };
-        var baseResponsePacket = new Packet
-        {
-            Type = PacketType.MessageAdded,
-            Data = JsonSerializer.SerializeToElement(new
-            {
-                baseResponse,
-                messageResponse
-            })
-        };
-        var messageResponsePacket = new Packet
-        {
-            Type = PacketType.MessageReceived,
-            Data = JsonSerializer.SerializeToElement(messageResponse)
-        };
+        var messageResponsePacket = Packet.Create(PacketType.MessageReceived, messageResponse);
 
-        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
         string messageResponseJson = JsonSerializer.Serialize(messageResponsePacket);
 
-        await _networkHelper.WriteAsync(stream, baseResponseJson);
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.MessageAdded, new
+        {
+            baseResponse,
+            messageResponse
+        }));
         await _broadcaster.BroadcastAsync(session, messageResponseJson);
 
         _logger.LogInformation("Message {MessageId} created by client {ClientId}",
@@ -147,16 +123,7 @@ public class MessageHandler
                                messages.Count,
                                session.ClientId);
 
-        var packet = new Packet
-        {
-            Type = PacketType.MessageHistoryReceived,
-            Data = JsonSerializer.SerializeToElement(responses)
-        };
-
-        string json = JsonSerializer.Serialize(packet);
-        var stream = session.TcpClient.GetStream();
-
-        await _networkHelper.WriteAsync(stream, json);
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.MessageHistoryReceived, responses));
 
         _logger.LogInformation("Message history sent to client {ClientId}",
                                session.ClientId);
@@ -187,7 +154,6 @@ public class MessageHandler
                         messageId);
 
         var (id, error) = await _service.DeleteAsync(session.ClientId, messageId.Value);
-        var stream = session.TcpClient.GetStream();
 
         if (!string.IsNullOrEmpty(error))
         {
@@ -195,20 +161,7 @@ public class MessageHandler
                                session.ClientId,
                                error);
 
-            var errorBaseResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.MessageDeleted,
-                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
-            };
-
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-
-            await _networkHelper.WriteAsync(stream, errorResponseJson);
+            await _networkHelper.SendErrorAsync(session, PacketType.MessageDeleted, error);
 
             return;
         }
@@ -217,15 +170,8 @@ public class MessageHandler
                                messageId,
                                session.ClientId);
 
-        var deletedPacket = new Packet
-        {
-            Type = PacketType.MessageDeleted,
-            Data = JsonSerializer.SerializeToElement(messageId)
-        };
+        string deletedJson = await _networkHelper.SendAsync(session, Packet.Create(PacketType.MessageDeleted, messageId));
 
-        string deletedJson = JsonSerializer.Serialize(deletedPacket);
-
-        await _networkHelper.WriteAsync(stream, deletedJson);
         await _broadcaster.BroadcastAsync(session, deletedJson);
 
         _logger.LogInformation("MessageDeleted response sent to client {ClientId} for message {MessageId}",

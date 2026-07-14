@@ -48,16 +48,7 @@ public class ClientHandler
             })
             .ToList();
 
-        var packet = new Packet
-        {
-            Type = PacketType.ClientList,
-            Data = JsonSerializer.SerializeToElement(responses)
-        };
-
-        string json = JsonSerializer.Serialize(packet);
-        var stream = session.TcpClient.GetStream();
-
-        await _networkHelper.WriteAsync(stream, json);
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientList, responses));
     }
 
     public async Task GetByIdAsync(ClientSession session, Packet packet)
@@ -68,26 +59,12 @@ public class ClientHandler
         Guid id = packet.Data.Deserialize<Guid>();
         
         var (client, error) = await _service.GetByIdAsync((Guid)id);
-        var stream = session.TcpClient.GetStream();
 
         if(!string.IsNullOrEmpty(error))
         {
             _logger.LogInformation("The client was not found");
-            
-            var errorResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.ClientReceived,
-                Data = JsonSerializer.SerializeToElement(errorResponse)
-            };
 
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-
-            await _networkHelper.WriteAsync(stream, errorResponseJson);
+            await _networkHelper.SendErrorAsync(session, PacketType.ClientReceived, error);
 
             return;
         }
@@ -106,19 +83,12 @@ public class ClientHandler
             IsOnline = _sessionManager.IsOnline(client.Id),
             Avatar = client.Avatar
         };
-        var responsePacket = new Packet
+
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientReceived, new
         {
-            Type = PacketType.ClientReceived,
-            Data = JsonSerializer.SerializeToElement(new
-            {
-                BaseResponse = baseResponse,
-                ClientResponse = clientResponse
-            })
-        };
-
-        string responseJson = JsonSerializer.Serialize(responsePacket);
-
-        await _networkHelper.WriteAsync(stream, responseJson);
+            BaseResponse = baseResponse,
+            ClientResponse = clientResponse
+        }));
     }
 
     public async Task UpdateAsync(ClientSession session, Packet packet)
@@ -139,27 +109,13 @@ public class ClientHandler
                                                          request.Name,
                                                          request.Login,
                                                          request.Avatar);
-        var stream = session.TcpClient.GetStream();
-        
+
         if (!string.IsNullOrEmpty(error))
         {
             _logger.LogInformation("Client update failed: {Error}", 
                                    error);
-            
-            var errorBaseResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.ClientUpdated,
-                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
-            };
 
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);    
-
-            await _networkHelper.WriteAsync(stream, errorResponseJson);
+            await _networkHelper.SendErrorAsync(session, PacketType.ClientUpdated, error);
 
             return;
         }
@@ -176,31 +132,19 @@ public class ClientHandler
             Login = client.Login,
             Avatar = client.Avatar
         };
-        var responsePacket = new Packet
+        var broadcastPacket = Packet.Create(PacketType.ClientUpdated, new ClientResponse
         {
-            Type = PacketType.ClientUpdated,
-            Data = JsonSerializer.SerializeToElement(new
-            {
-                baseResponse,
-                clientProfileResponse
-            })
-        };
-        var broadcastPacket = new Packet
+            Id = client.Id,
+            Name = client.Name,
+            Avatar = client.Avatar
+        });
+
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientUpdated, new
         {
-            Type = PacketType.ClientUpdated,
-            Data = JsonSerializer.SerializeToElement(new ClientResponse
-            {
-                Id = client.Id,
-                Name = client.Name,
-                Avatar = client.Avatar
-            })
-        };
-
-        string responseJson = JsonSerializer.Serialize(responsePacket);
-        string broadcastJson = JsonSerializer.Serialize(broadcastPacket);
-
-        await _networkHelper.WriteAsync(stream, responseJson);
-        await _broadcaster.BroadcastAsync(session, broadcastJson);
+            baseResponse,
+            clientProfileResponse
+        }));
+        await _broadcaster.BroadcastAsync(session, JsonSerializer.Serialize(broadcastPacket));
     }
 
     public async Task ChangePassword(ClientSession session, Packet packet)
@@ -218,27 +162,13 @@ public class ClientHandler
         }
 
         var (client, error) = await _service.ChangePassword(session.ClientId, request.Password);
-        var stream = session.TcpClient.GetStream();
 
         if (!string.IsNullOrEmpty(error))
         {
             _logger.LogInformation("User password change failed: {Error}", 
                                    error);
 
-            var errorBaseResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.ClientPasswordChanged,
-                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
-            };
-
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-
-            await _networkHelper.WriteAsync(stream, errorResponseJson);
+            await _networkHelper.SendErrorAsync(session, PacketType.ClientPasswordChanged, error);
 
             return;
         }
@@ -248,15 +178,8 @@ public class ClientHandler
             Success = true,
             Message = "Password changed successfully"
         };
-        var responsePacket = new Packet
-        {
-            Type = PacketType.ClientPasswordChanged,
-            Data = JsonSerializer.SerializeToElement(baseResponse)
-        };
 
-        string responseJson = JsonSerializer.Serialize(responsePacket);
-
-        await _networkHelper.WriteAsync(stream, responseJson);
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientPasswordChanged, baseResponse));
     }
 
     public async Task DeleteAsync(ClientSession session)
@@ -265,26 +188,12 @@ public class ClientHandler
             return;
 
         var (clientId, error) = await _service.DeleteAsync((Guid)session.ClientId);
-        var stream = session.TcpClient.GetStream();
 
         if (!string.IsNullOrEmpty(error))
         {
             _logger.LogInformation("Client delete failed: {Error}", error);
 
-            var errorResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.ClientDeleted,
-                Data = JsonSerializer.SerializeToElement(errorResponse)
-            };
-
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-
-            await _networkHelper.WriteAsync(stream, errorResponseJson);
+            await _networkHelper.SendErrorAsync(session, PacketType.ClientDeleted, error);
 
             return;
         }
@@ -294,19 +203,13 @@ public class ClientHandler
             Success = true,
             Message = "The client was deleted",
         };
-        var responsePacket = new Packet
+
+        string responseJson = await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientDeleted, new
         {
-            Type = PacketType.ClientDeleted,
-            Data = JsonSerializer.SerializeToElement(new
-            {
-                BaseResponse = baseResponse,
-                Id = clientId
-            })
-        };
+            BaseResponse = baseResponse,
+            Id = clientId
+        }));
 
-        string responseJson = JsonSerializer.Serialize(responsePacket);
-
-        await _networkHelper.WriteAsync(stream, responseJson);
         await _broadcaster.BroadcastAsync(session, responseJson);
     }
 }
