@@ -49,21 +49,8 @@ public class AuthHandler
                                request.Login,
                                error);
 
-            var errorBaseResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.ClientRegistered,
-                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
-            };
+            await _networkHelper.SendErrorAsync(session, PacketType.ClientRegistered, error);
 
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-            
-            await _networkHelper.WriteAsync(session.TcpClient.GetStream(), errorResponseJson);
-            
             return;
         }
 
@@ -80,21 +67,11 @@ public class AuthHandler
             Id = client!.Id,
             Name = client.Name
         };
-        var baseResponsePacket = new Packet
-        {
-            Type = PacketType.ClientRegistered,
-            Data = JsonSerializer.SerializeToElement(baseResponse)
-        };
-        var clientResponsePacket = new Packet
-        {
-            Type = PacketType.ClientRegistered,
-            Data = JsonSerializer.SerializeToElement(clientResponse)
-        };
 
-        string baseResponseJson = JsonSerializer.Serialize(baseResponsePacket);
-        string clientResponseJson = JsonSerializer.Serialize(clientResponsePacket);
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientRegistered, baseResponse));
 
-        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), baseResponseJson);
+        string clientResponseJson = JsonSerializer.Serialize(Packet.Create(PacketType.ClientRegistered, clientResponse));
+
         await _broadcaster.BroadcastAsync(session, clientResponseJson);
     }
 
@@ -120,21 +97,8 @@ public class AuthHandler
                                request.Login,
                                error);
 
-            var errorBaseResponse = new BaseResponse
-            {
-                Success = false,
-                Message = error
-            };
-            var errorResponsePacket = new Packet
-            {
-                Type = PacketType.ClientLogged,
-                Data = JsonSerializer.SerializeToElement(errorBaseResponse)
-            };
+            await _networkHelper.SendErrorAsync(session, PacketType.ClientLogged, error);
 
-            string errorResponseJson = JsonSerializer.Serialize(errorResponsePacket);
-            
-            await _networkHelper.WriteAsync(session.TcpClient.GetStream(), errorResponseJson);
-            
             return;
         }
 
@@ -150,20 +114,13 @@ public class AuthHandler
             IsOnline = true,
             Avatar = client.Avatar
         };
-        var responsePacket = new Packet
-        {
-            Type = PacketType.ClientLogged,
-            Data = JsonSerializer.SerializeToElement(new
-            {
-                BaseResponse = baseResponse,
-                ClientResponse = clientResponse
-            })
-        };
 
-        string responseJson = JsonSerializer.Serialize(responsePacket);
-    
-        await _networkHelper.WriteAsync(session.TcpClient.GetStream(), responseJson);
-        
+        await _networkHelper.SendAsync(session, Packet.Create(PacketType.ClientLogged, new
+        {
+            BaseResponse = baseResponse,
+            ClientResponse = clientResponse
+        }));
+
         _logger.LogInformation("Login success: {ClientId} ({Name})",
                                clientResponse!.Id,
                                clientResponse.Name);
@@ -177,11 +134,7 @@ public class AuthHandler
             ClientId = session.ClientId,
             IsOnline = true
         };
-        var broadcastPacket = new Packet
-        {
-            Type = PacketType.ClientStatusChanged,
-            Data = JsonSerializer.SerializeToElement(statusResponse)
-        };
+        var broadcastPacket = Packet.Create(PacketType.ClientStatusChanged, statusResponse);
 
         await _broadcaster.BroadcastAsync(session, JsonSerializer.Serialize(broadcastPacket));
     }
