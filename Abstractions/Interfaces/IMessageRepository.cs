@@ -8,5 +8,5 @@ public interface IMessageRepository
     public Task<Message?> GetByIdAsync(Guid id);
     public Task<List<Message>> GetAllAsync();
     public Task<bool> IsMessageOccupiedAsync(Guid id, Guid fromClientId);
-    public Task DeleteAsync(Message entity);
+    public Task<bool> DeleteAsync(Message entity);
 }

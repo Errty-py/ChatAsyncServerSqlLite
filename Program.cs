@@ -74,26 +74,38 @@ builder.Services.AddScoped<AuthHandler>();
 builder.Services.AddScoped<MessageHandler>();
 builder.Services.AddScoped<PacketRouter>();
 
-IHost host = builder.Build();
-
-using (IServiceScope scope = host.Services.CreateAsyncScope())
-{
-    AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();    
-
-    await dbContext.Database.MigrateAsync();
-}
-
-Server server = host.Services.GetRequiredService<Server>();
-
 try
 {
-    await server.StartAsync();
+    IHost host = builder.Build();
 
-    await Task.Delay(Timeout.Infinite);
+    using (IServiceScope scope = host.Services.CreateAsyncScope())
+    {
+        AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        await dbContext.Database.MigrateAsync();
+    }
+
+    Server server = host.Services.GetRequiredService<Server>();
+
+    try
+    {
+        await server.StartAsync();
+
+        await Task.Delay(Timeout.Infinite);
+    }
+    finally
+    {
+        await server.StopAsync();
+    }
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex,
+              "Server terminated unexpectedly");
+
+    throw;
 }
 finally
 {
-    await server.StopAsync();
+    Log.CloseAndFlush();
 }
-
-Log.CloseAndFlush();

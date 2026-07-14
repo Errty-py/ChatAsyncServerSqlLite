@@ -56,15 +56,13 @@ public class MessageRepository : IMessageRepository
     {
         return await _dbContext.Messages.AnyAsync(m => m.Id == id && m.FromClientId != fromClientId);
     }
-    
-    public async Task DeleteAsync(Message message) 
-    {
-        var messageEntity = await _dbContext.Messages.FindAsync(message.Id);
 
-        if (messageEntity != null)
-        {
-            _dbContext.Messages.Remove(messageEntity);
-            await _dbContext.SaveChangesAsync();
-        }
+    public async Task<bool> DeleteAsync(Message message)
+    {
+        int deletedCount = await _dbContext.Messages
+                                           .Where(m => m.Id == message.Id)
+                                           .ExecuteDeleteAsync();
+
+        return deletedCount > 0;
     }
 }

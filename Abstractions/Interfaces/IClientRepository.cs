@@ -11,6 +11,6 @@ public interface IClientRepository
     public Task<bool> ExistsByIdAsync(Guid id);
     public Task<bool> ExistsByLoginAsync(string login);
     public Task<bool> IsLoginOccupiedAsync(string login, Guid id);
-    public Task UpdateAsync(Client client);
-    public Task DeleteAsync(Client clientEntity);
+    public Task<bool> UpdateAsync(Client client);
+    public Task<bool> DeleteAsync(Client clientEntity);
 }

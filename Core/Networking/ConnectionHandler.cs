@@ -59,31 +59,42 @@ public class ConnectionHandler
                 await _router.RouteAsync(_session, packet);
             }
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.LogError(ex,
-                             "Error while processing client {ClientId}",
-                             _session.ClientId);
-        }
-        finally
-        {
-            bool wasAuthenticated = _session.IsAuthenticated;
-            if (wasAuthenticated)
+            try
             {
-                ClientStatusResponse response = new()
-                {
-                    ClientId = _session.ClientId,
-                    IsOnline = false
-                };
-
-                Packet packet = new()
-                {
-                    Type = PacketType.ClientStatusChanged,
-                    Data = JsonSerializer.SerializeToElement(response)
-                };
-
-                await _broadcaster.BroadcastAsync(_session, JsonSerializer.Serialize(packet));
+                await NotifyClientOfflineAsync();
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                                 "Failed to notify clients that client {ClientId} disconnected",
+                                 _session.ClientId);
+            }
+
+            throw;
         }
+
+        await NotifyClientOfflineAsync();
+    }
+
+    private async Task NotifyClientOfflineAsync()
+    {
+        if (!_session.IsAuthenticated)
+            return;
+
+        ClientStatusResponse response = new()
+        {
+            ClientId = _session.ClientId,
+            IsOnline = false
+        };
+
+        Packet packet = new()
+        {
+            Type = PacketType.ClientStatusChanged,
+            Data = JsonSerializer.SerializeToElement(response)
+        };
+
+        await _broadcaster.BroadcastAsync(_session, JsonSerializer.Serialize(packet));
     }
 }

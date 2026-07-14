@@ -46,6 +46,22 @@ public class Server
 
     private async Task HandleClientAsync(TcpClient tcpClient)
     {
+        EndPoint? remoteEndPoint = tcpClient.Client.RemoteEndPoint;
+
+        try
+        {
+            await ProcessClientAsync(tcpClient);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                             "Unhandled error while processing client {Endpoint}",
+                             remoteEndPoint);
+        }
+    }
+
+    private async Task ProcessClientAsync(TcpClient tcpClient)
+    {
         ClientSession session = new()
         {
             TcpClient = tcpClient

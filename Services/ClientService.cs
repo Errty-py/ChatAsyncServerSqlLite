@@ -12,7 +12,7 @@ public class ClientService
     {
         this._repository = repository;
     }
-    
+
     public async Task<List<Client>> GetAllAsync()
     {
         return await _repository.GetAllAsync();
@@ -21,7 +21,7 @@ public class ClientService
     public async Task<(Client? client, string? error)> GetByIdAsync(Guid id)
     {
         Client? client = await _repository.GetByIdAsync(id);
-        
+
         if (client is null)
             return (null, "Client not found");
 
@@ -47,7 +47,10 @@ public class ClientService
         if (updateResult.IsFailure)
             return (null, updateResult.Error);
 
-        await _repository.UpdateAsync(client);
+        bool updated = await _repository.UpdateAsync(client);
+
+        if (!updated)
+            return (null, "Client not found");
 
         return (client, null);
     }
@@ -65,7 +68,10 @@ public class ClientService
         if (changePasswordResult.IsFailure)
             return (null, changePasswordResult.Error);
 
-        await _repository.UpdateAsync(client);
+        bool updated = await _repository.UpdateAsync(client);
+
+        if (!updated)
+            return (null, "Client not found");
 
         return (client, null);
     }
@@ -73,11 +79,14 @@ public class ClientService
     public async Task<(Guid? id, string? error)> DeleteAsync(Guid id)
     {
         Client? client = await _repository.GetByIdAsync(id);
-    
+
         if(client is null)
             return (null, "Client not found");
 
-        await _repository.DeleteAsync(client);
+        bool deleted = await _repository.DeleteAsync(client);
+
+        if (!deleted)
+            return (null, "Client not found");
 
         return (id, null);
     }
