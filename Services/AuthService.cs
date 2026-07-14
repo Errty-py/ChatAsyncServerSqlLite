@@ -6,6 +6,8 @@ namespace SpaceChatServer.Services;
 
 public class AuthService
 {
+    public const int MinPasswordLength = 8;
+
     private readonly IClientRepository _repository;
 
     public AuthService(IClientRepository repository)
@@ -15,6 +17,9 @@ public class AuthService
 
     public async Task<(Client? client, string? error)> RegisterAsync(string name, string login, string password)
     {
+        if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
+            return (null, $"Password must be at least {MinPasswordLength} characters long.");
+
         string passwordHash = PasswordHasher.Hash(password);
         
         var client = Client.Create(Guid.NewGuid(), name, login, passwordHash, null);
